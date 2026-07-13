@@ -107,4 +107,12 @@ public class Leito {
     public Instant getDataUltimaAtualizacaoStatus() {
         return dataUltimaAtualizacaoStatus;
     }
+
+    /**
+     * Única mutação de status pós-criação. Deve ser chamada apenas por {@code LeitoService.transicionar}.
+     */
+    public void aplicarTransicao(StatusLeito novoStatus, Instant instante) {
+        this.status = novoStatus;
+        this.dataUltimaAtualizacaoStatus = instante;
+    }
 }

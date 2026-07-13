@@ -1,16 +1,23 @@
 package br.com.leitovivo.service;
 
+import br.com.leitovivo.domain.AutorAcao;
+import br.com.leitovivo.domain.EventoLeito;
+import br.com.leitovivo.domain.MaquinaEstadosLeito;
 import br.com.leitovivo.domain.StatusLeito;
 import br.com.leitovivo.domain.TipoLeito;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
+import br.com.leitovivo.persistence.HistoricoStatusLeito;
+import br.com.leitovivo.persistence.HistoricoStatusLeitoRepository;
 import br.com.leitovivo.persistence.Leito;
 import br.com.leitovivo.persistence.LeitoRepository;
 import br.com.leitovivo.persistence.Unidade;
 import br.com.leitovivo.persistence.UnidadeRepository;
 import br.com.leitovivo.web.dto.CriarLeitoRequest;
+import br.com.leitovivo.web.dto.HistoricoStatusResponse;
 import br.com.leitovivo.web.dto.LeitoResponse;
+import br.com.leitovivo.web.dto.TransicionarLeitoRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +31,17 @@ public class LeitoService {
 
     private final LeitoRepository leitoRepository;
     private final UnidadeRepository unidadeRepository;
+    private final HistoricoStatusLeitoRepository historicoStatusLeitoRepository;
     private final Clock clock;
 
-    public LeitoService(LeitoRepository leitoRepository, UnidadeRepository unidadeRepository, Clock clock) {
+    public LeitoService(
+            LeitoRepository leitoRepository,
+            UnidadeRepository unidadeRepository,
+            HistoricoStatusLeitoRepository historicoStatusLeitoRepository,
+            Clock clock) {
         this.leitoRepository = leitoRepository;
         this.unidadeRepository = unidadeRepository;
+        this.historicoStatusLeitoRepository = historicoStatusLeitoRepository;
         this.clock = clock;
     }
 
@@ -60,6 +73,53 @@ public class LeitoService {
     public List<LeitoResponse> listar(UUID unidadeId, TipoLeito tipo, StatusLeito status) {
         return leitoRepository.filtrar(unidadeId, tipo, status).stream()
                 .map(this::toResponse)
+                .toList();
+    }
+
+    /**
+     * Funil único de transição: único ponto que altera status após a criação.
+     */
+    @Transactional
+    public LeitoResponse transicionar(UUID leitoId, EventoLeito evento, AutorAcao autor, String motivo) {
+        if (evento == null) {
+            throw new PayloadInvalidoException("evento é obrigatório");
+        }
+        if (autor == null) {
+            throw new PayloadInvalidoException("autor é obrigatório");
+        }
+        Leito leito = leitoRepository.findById(leitoId)
+                .orElseThrow(() -> new RecursoNaoEncontradoException("Leito não encontrado: " + leitoId));
+
+        StatusLeito anterior = leito.getStatus();
+        StatusLeito novo = MaquinaEstadosLeito.transicionar(anterior, evento);
+        Instant agora = Instant.now(clock);
+
+        leito.aplicarTransicao(novo, agora);
+        historicoStatusLeitoRepository.save(new HistoricoStatusLeito(
+                leito, anterior, novo, evento, autor, motivo, agora));
+
+        return toResponse(leito);
+    }
+
+    @Transactional
+    public LeitoResponse transicionar(UUID leitoId, TransicionarLeitoRequest request) {
+        return transicionar(leitoId, request.evento(), request.autor(), request.motivo());
+    }
+
+    @Transactional(readOnly = true)
+    public List<HistoricoStatusResponse> listarHistorico(UUID leitoId) {
+        if (!leitoRepository.existsById(leitoId)) {
+            throw new RecursoNaoEncontradoException("Leito não encontrado: " + leitoId);
+        }
+        return historicoStatusLeitoRepository.findByLeitoIdOrderByDataHoraAsc(leitoId).stream()
+                .map(h -> new HistoricoStatusResponse(
+                        h.getId(),
+                        h.getStatusAnterior(),
+                        h.getStatusNovo(),
+                        h.getEvento(),
+                        h.getAutor(),
+                        h.getMotivo(),
+                        h.getDataHora()))
                 .toList();
     }
 

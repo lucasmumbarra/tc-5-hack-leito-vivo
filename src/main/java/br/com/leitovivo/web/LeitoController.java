@@ -4,7 +4,9 @@ import br.com.leitovivo.domain.StatusLeito;
 import br.com.leitovivo.domain.TipoLeito;
 import br.com.leitovivo.service.LeitoService;
 import br.com.leitovivo.web.dto.CriarLeitoRequest;
+import br.com.leitovivo.web.dto.HistoricoStatusResponse;
 import br.com.leitovivo.web.dto.LeitoResponse;
+import br.com.leitovivo.web.dto.TransicionarLeitoRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +33,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/leitos")
-@Tag(name = "Leitos", description = "Cadastro e consulta de leitos (sem transição de status)")
+@Tag(name = "Leitos", description = "Cadastro, consulta e transição de status via funil único")
 public class LeitoController {
 
     private final LeitoService leitoService;
@@ -77,5 +81,41 @@ public class LeitoController {
             @RequestParam(required = false) TipoLeito tipo,
             @RequestParam(required = false) StatusLeito status) {
         return leitoService.listar(unidadeId, tipo, status);
+    }
+
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Transicionar status", description = "Delega ao funil único LeitoService.transicionar.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Transição aplicada",
+                    content = @Content(schema = @Schema(implementation = LeitoResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Leito inexistente",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class))),
+            @ApiResponse(responseCode = "409", description = "Transição inválida ou conflito de versão",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public LeitoResponse transicionar(
+            @PathVariable UUID id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = TransicionarLeitoRequest.class),
+                            examples = @ExampleObject(value = """
+                                    {"evento":"RESERVAR_LEITO","autor":"USUARIO","motivo":"Transferência"}
+                                    """)))
+            @RequestBody TransicionarLeitoRequest request) {
+        return leitoService.transicionar(id, request);
+    }
+
+    @GetMapping("/{id}/historico")
+    @Operation(summary = "Histórico de status", description = "Trilha de auditoria em ordem cronológica.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Histórico",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = HistoricoStatusResponse.class)))),
+            @ApiResponse(responseCode = "404", description = "Leito inexistente",
+                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+    })
+    public List<HistoricoStatusResponse> historico(@PathVariable UUID id) {
+        return leitoService.listarHistorico(id);
     }
 }

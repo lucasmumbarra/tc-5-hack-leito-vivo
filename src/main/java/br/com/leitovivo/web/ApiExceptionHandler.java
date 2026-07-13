@@ -3,9 +3,12 @@ package br.com.leitovivo.web;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
+import br.com.leitovivo.exception.TransicaoInvalidaException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,9 +23,15 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problem(HttpStatus.NOT_FOUND, ex.getMessage()));
     }
 
-    @ExceptionHandler(ConflitoNegocioException.class)
-    public ResponseEntity<ProblemDetail> handleConflict(ConflitoNegocioException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem(HttpStatus.CONFLICT, ex.getMessage()));
+    @ExceptionHandler({
+            ConflitoNegocioException.class,
+            TransicaoInvalidaException.class,
+            OptimisticLockingFailureException.class,
+            ObjectOptimisticLockingFailureException.class
+    })
+    public ResponseEntity<ProblemDetail> handleConflict(Exception ex) {
+        String detail = ex.getMessage() != null ? ex.getMessage() : "Conflito de negócio";
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(problem(HttpStatus.CONFLICT, detail));
     }
 
     @ExceptionHandler({PayloadInvalidoException.class, MethodArgumentNotValidException.class})

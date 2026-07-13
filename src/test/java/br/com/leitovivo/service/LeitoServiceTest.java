@@ -4,6 +4,7 @@ import br.com.leitovivo.domain.StatusLeito;
 import br.com.leitovivo.domain.TipoLeito;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
+import br.com.leitovivo.persistence.HistoricoStatusLeitoRepository;
 import br.com.leitovivo.persistence.Leito;
 import br.com.leitovivo.persistence.LeitoRepository;
 import br.com.leitovivo.persistence.Unidade;
@@ -42,6 +43,8 @@ class LeitoServiceTest {
     private LeitoRepository leitoRepository;
     @Mock
     private UnidadeRepository unidadeRepository;
+    @Mock
+    private HistoricoStatusLeitoRepository historicoStatusLeitoRepository;
 
     private LeitoService leitoService;
     private Unidade unidade;
@@ -49,7 +52,7 @@ class LeitoServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         Clock clock = Clock.fixed(AGORA, ZoneOffset.UTC);
-        leitoService = new LeitoService(leitoRepository, unidadeRepository, clock);
+        leitoService = new LeitoService(leitoRepository, unidadeRepository, historicoStatusLeitoRepository, clock);
         unidade = new Unidade("Hospital", "SP", "Sudeste", "Geral");
         setField(unidade, "id", UUID.randomUUID());
     }
