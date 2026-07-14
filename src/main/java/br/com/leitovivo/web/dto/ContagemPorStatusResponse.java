@@ -1,0 +1,9 @@
+package br.com.leitovivo.web.dto;
+
+public record ContagemPorStatusResponse(
+        long livre,
+        long reservado,
+        long ocupado,
+        long emHigienizacao,
+        long manutencao) {
+}
