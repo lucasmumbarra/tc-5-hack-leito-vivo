@@ -1,7 +1,7 @@
 package br.com.leitovivo.exception;
 
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
 
 public class TransicaoInvalidaException extends RuntimeException {
 

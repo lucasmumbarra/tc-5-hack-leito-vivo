@@ -1,23 +1,23 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.domain.sla.SituacaoAlerta;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.AlertaIndicadorRepository;
-import br.com.leitovivo.persistence.HistoricoIndicadorRepository;
-import br.com.leitovivo.persistence.HistoricoStatusLeito;
-import br.com.leitovivo.persistence.Internacao;
-import br.com.leitovivo.persistence.InternacaoIndicadorRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoBuscaIndicadorRepository;
-import br.com.leitovivo.persistence.Paciente;
-import br.com.leitovivo.persistence.StatusInternacao;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.persistence.UnidadeRepository;
-import br.com.leitovivo.web.dto.IndicadoresUnidadeResponse;
+import br.com.leitovivo.persistence.repository.AlertaIndicadorRepository;
+import br.com.leitovivo.persistence.repository.HistoricoIndicadorRepository;
+import br.com.leitovivo.persistence.entity.HistoricoStatusLeito;
+import br.com.leitovivo.persistence.entity.Internacao;
+import br.com.leitovivo.persistence.repository.InternacaoIndicadorRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
+import br.com.leitovivo.persistence.entity.Paciente;
+import br.com.leitovivo.persistence.enums.StatusInternacao;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.persistence.repository.UnidadeRepository;
+import br.com.leitovivo.web.dto.response.IndicadoresUnidadeResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -119,10 +119,10 @@ class IndicadorServiceTest {
         Instant t1 = Instant.parse("2026-07-13T12:00:00Z"); // 120 min depois
         HistoricoStatusLeito h1 = new HistoricoStatusLeito(
                 leito, StatusLeito.OCUPADO, StatusLeito.EM_HIGIENIZACAO,
-                EventoLeito.REGISTRAR_ALTA, AutorAcao.USUARIO, null, t0);
+                EventoLeito.REGISTRAR_ALTA, Autor.USUARIO, null, t0);
         HistoricoStatusLeito h2 = new HistoricoStatusLeito(
                 leito, StatusLeito.EM_HIGIENIZACAO, StatusLeito.LIVRE,
-                EventoLeito.FINALIZAR_HIGIENIZACAO, AutorAcao.SISTEMA, "TIMEOUT_HIGIENIZACAO", t1);
+                EventoLeito.FINALIZAR_HIGIENIZACAO, Autor.SISTEMA, "TIMEOUT_HIGIENIZACAO", t1);
         when(historicoRepo.findByUnidadeIdOrderByLeitoAndData(unidadeId)).thenReturn(List.of(h1, h2));
 
         IndicadoresUnidadeResponse r = service.calcular(unidadeId);

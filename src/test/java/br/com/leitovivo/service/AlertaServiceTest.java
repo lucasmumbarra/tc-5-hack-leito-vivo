@@ -1,16 +1,16 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
-import br.com.leitovivo.domain.sla.SituacaoAlerta;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
 import br.com.leitovivo.exception.ConflitoNegocioException;
-import br.com.leitovivo.persistence.AlertaLeito;
-import br.com.leitovivo.persistence.AlertaLeitoRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.web.dto.AlertaResponse;
-import br.com.leitovivo.web.dto.ResolverAlertaRequest;
+import br.com.leitovivo.persistence.entity.AlertaLeito;
+import br.com.leitovivo.persistence.repository.AlertaLeitoRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.web.dto.response.AlertaResponse;
+import br.com.leitovivo.web.dto.request.ResolverAlertaRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -103,9 +103,9 @@ class AlertaServiceTest {
     void registrarAcaoExecutadaMantemAberto() {
         when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
 
-        alertaService.registrarAcaoExecutada(alerta.getId(), AcaoAutomaticaSla.LIBERAR_LEITO);
+        alertaService.registrarAcaoExecutada(alerta.getId(), AcaoAutomatica.LIBERAR_LEITO);
 
-        assertEquals(AcaoAutomaticaSla.LIBERAR_LEITO, alerta.getAcaoExecutada());
+        assertEquals(AcaoAutomatica.LIBERAR_LEITO, alerta.getAcaoExecutada());
         assertEquals(SituacaoAlerta.ABERTO, alerta.getSituacao());
         verify(alertaLeitoRepository).findById(alerta.getId());
     }

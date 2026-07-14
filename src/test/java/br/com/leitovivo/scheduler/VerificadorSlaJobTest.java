@@ -1,20 +1,20 @@
 package br.com.leitovivo.scheduler;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
-import br.com.leitovivo.domain.sla.SituacaoAlerta;
-import br.com.leitovivo.domain.sla.SlaRegra;
-import br.com.leitovivo.persistence.AlertaLeito;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoSlaRepository;
-import br.com.leitovivo.persistence.Unidade;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
+import br.com.leitovivo.domain.sla.model.SlaAplicavel;
+import br.com.leitovivo.persistence.entity.AlertaLeito;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoSlaRepository;
+import br.com.leitovivo.persistence.entity.Unidade;
 import br.com.leitovivo.service.AlertaService;
 import br.com.leitovivo.service.LeitoService;
 import br.com.leitovivo.service.SlaService;
-import br.com.leitovivo.web.dto.LeitoResponse;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,15 +91,15 @@ class VerificadorSlaJobTest {
     @Test
     void liberacaoAutomaticaPassaPeloFunilComSistema() {
         when(slaService.listarComoRegras()).thenReturn(List.of(
-                new SlaRegra(UUID.randomUUID(), null, null, StatusLeito.EM_HIGIENIZACAO,
-                        120, 240, AcaoAutomaticaSla.LIBERAR_LEITO)));
+                new SlaAplicavel(UUID.randomUUID(), null, null, StatusLeito.EM_HIGIENIZACAO,
+                        120, 240, AcaoAutomatica.LIBERAR_LEITO)));
         when(leitoSlaRepository.findByStatusIn(any())).thenReturn(List.of(leitoHigienizacao));
         when(alertaService.garantirAberto(eq(leitoHigienizacao), eq(StatusLeito.EM_HIGIENIZACAO), anyInt(), eq(AGORA)))
                 .thenReturn(alertaHigienizacao);
         when(leitoService.transicionar(
                 leitoHigienizacao.getId(),
                 EventoLeito.FINALIZAR_HIGIENIZACAO,
-                AutorAcao.SISTEMA,
+                Autor.SISTEMA,
                 VerificadorSlaJob.MOTIVO_TIMEOUT_HIGIENIZACAO))
                 .thenReturn(new LeitoResponse(
                         leitoHigienizacao.getId(), unidadeId, "HIG-01", TipoLeito.UTI,
@@ -110,18 +110,18 @@ class VerificadorSlaJobTest {
         verify(leitoService).transicionar(
                 leitoHigienizacao.getId(),
                 EventoLeito.FINALIZAR_HIGIENIZACAO,
-                AutorAcao.SISTEMA,
+                Autor.SISTEMA,
                 VerificadorSlaJob.MOTIVO_TIMEOUT_HIGIENIZACAO);
         verify(leitoSlaRepository).marcarLiberadoAutomaticamente(leitoHigienizacao.getId());
-        verify(alertaService).registrarAcaoExecutada(alertaHigienizacao.getId(), AcaoAutomaticaSla.LIBERAR_LEITO);
+        verify(alertaService).registrarAcaoExecutada(alertaHigienizacao.getId(), AcaoAutomatica.LIBERAR_LEITO);
         verify(leitoSlaRepository, never()).save(any());
     }
 
     @Test
     void ocupadoGeraAlertaSemTransicionar() {
         when(slaService.listarComoRegras()).thenReturn(List.of(
-                new SlaRegra(UUID.randomUUID(), null, null, StatusLeito.OCUPADO,
-                        28800, null, AcaoAutomaticaSla.NENHUMA)));
+                new SlaAplicavel(UUID.randomUUID(), null, null, StatusLeito.OCUPADO,
+                        28800, null, AcaoAutomatica.NENHUMA)));
         when(leitoSlaRepository.findByStatusIn(any())).thenReturn(List.of(leitoOcupado));
         when(alertaService.garantirAberto(eq(leitoOcupado), eq(StatusLeito.OCUPADO), anyInt(), eq(AGORA)))
                 .thenReturn(alertaOcupado);
@@ -135,8 +135,8 @@ class VerificadorSlaJobTest {
     @Test
     void duasExecucoesNaoDuplicamAberturaViaGarantirAberto() {
         when(slaService.listarComoRegras()).thenReturn(List.of(
-                new SlaRegra(UUID.randomUUID(), null, null, StatusLeito.OCUPADO,
-                        28800, null, AcaoAutomaticaSla.NENHUMA)));
+                new SlaAplicavel(UUID.randomUUID(), null, null, StatusLeito.OCUPADO,
+                        28800, null, AcaoAutomatica.NENHUMA)));
         when(leitoSlaRepository.findByStatusIn(any())).thenReturn(List.of(leitoOcupado));
         when(alertaService.garantirAberto(eq(leitoOcupado), eq(StatusLeito.OCUPADO), anyInt(), eq(AGORA)))
                 .thenReturn(alertaOcupado);

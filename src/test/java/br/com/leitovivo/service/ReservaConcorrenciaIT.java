@@ -1,14 +1,14 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.TransicaoInvalidaException;
-import br.com.leitovivo.web.dto.CriarLeitoRequest;
-import br.com.leitovivo.web.dto.CriarUnidadeRequest;
-import br.com.leitovivo.web.dto.LeitoResponse;
-import br.com.leitovivo.web.dto.UnidadeResponse;
+import br.com.leitovivo.web.dto.request.CriarLeitoRequest;
+import br.com.leitovivo.web.dto.request.CriarUnidadeRequest;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
+import br.com.leitovivo.web.dto.response.UnidadeResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,12 +102,10 @@ class ReservaConcorrenciaIT {
             ready.countDown();
             start.await(10, TimeUnit.SECONDS);
             LeitoResponse r = leitoService.transicionar(
-                    leitoId, EventoLeito.RESERVAR_LEITO, AutorAcao.USUARIO, "concorrencia");
+                    leitoId, EventoLeito.RESERVAR_LEITO, Autor.USUARIO, "concorrencia");
             assertEquals(StatusLeito.RESERVADO, r.status());
             sucessos.incrementAndGet();
-        } catch (OptimisticLockingFailureException
-                 | org.springframework.orm.ObjectOptimisticLockingFailureException
-                 | TransicaoInvalidaException e) {
+        } catch (OptimisticLockingFailureException | TransicaoInvalidaException e) {
             falhas.incrementAndGet();
         } catch (Exception e) {
             erros.add(e);

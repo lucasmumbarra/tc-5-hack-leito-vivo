@@ -1,7 +1,8 @@
 package br.com.leitovivo.domain.sla;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.domain.sla.model.SlaAplicavel;
 
 import java.util.List;
 import java.util.Objects;
@@ -22,15 +23,15 @@ public final class SlaResolver {
      *
      * @return empty se não houver regra para o status
      */
-    public static Optional<SlaRegra> resolver(
+    public static Optional<SlaAplicavel> resolver(
             UUID unidadeId,
             TipoLeito tipo,
             StatusLeito status,
-            List<SlaRegra> regras) {
+            List<SlaAplicavel> regras) {
         Objects.requireNonNull(status, "status");
         Objects.requireNonNull(regras, "regras");
 
-        List<SlaRegra> doStatus = regras.stream()
+        List<SlaAplicavel> doStatus = regras.stream()
                 .filter(r -> r.status() == status)
                 .toList();
 
@@ -40,7 +41,7 @@ public final class SlaResolver {
                 .or(() -> primeiroCom(doStatus, null, null));
     }
 
-    private static Optional<SlaRegra> primeiroCom(List<SlaRegra> regras, UUID unidadeId, TipoLeito tipo) {
+    private static Optional<SlaAplicavel> primeiroCom(List<SlaAplicavel> regras, UUID unidadeId, TipoLeito tipo) {
         return regras.stream()
                 .filter(r -> Objects.equals(r.unidadeId(), unidadeId) && Objects.equals(r.tipoLeito(), tipo))
                 .findFirst();

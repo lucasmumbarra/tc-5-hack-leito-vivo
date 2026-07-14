@@ -1,17 +1,18 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
-import br.com.leitovivo.domain.sla.SituacaoAlerta;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.AlertaLeito;
-import br.com.leitovivo.persistence.AlertaLeitoRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.web.dto.AlertaResponse;
-import br.com.leitovivo.web.dto.ResolverAlertaRequest;
+import br.com.leitovivo.persistence.entity.AlertaLeito;
+import br.com.leitovivo.persistence.repository.AlertaLeitoRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.web.dto.response.AlertaResponse;
+import br.com.leitovivo.web.dto.request.ResolverAlertaRequest;
+import br.com.leitovivo.web.mapper.AlertaMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +57,7 @@ public class AlertaService {
     }
 
     @Transactional
-    public void registrarAcaoExecutada(UUID alertaId, AcaoAutomaticaSla acao) {
+    public void registrarAcaoExecutada(UUID alertaId, AcaoAutomatica acao) {
         AlertaLeito alerta = alertaLeitoRepository.findById(alertaId)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Alerta não encontrado: " + alertaId));
         alerta.registrarAcaoExecutada(acao);
@@ -73,30 +74,15 @@ public class AlertaService {
             throw new ConflitoNegocioException("Alerta já está resolvido: " + id);
         }
         alerta.resolver(request.resolvidoPor().trim(), Instant.now(clock));
-        return toResponse(alerta);
+        return AlertaMapper.toResponse(alerta);
     }
 
     @Transactional(readOnly = true)
     public List<AlertaResponse> listar(
             UUID unidadeId, TipoLeito tipo, StatusLeito statusEmAlerta, SituacaoAlerta situacao) {
         return alertaLeitoRepository.filtrar(unidadeId, tipo, statusEmAlerta, situacao).stream()
-                .map(this::toResponse)
+                .map(AlertaMapper::toResponse)
                 .toList();
     }
 
-    private AlertaResponse toResponse(AlertaLeito a) {
-        Leito leito = a.getLeito();
-        return new AlertaResponse(
-                a.getId(),
-                leito.getId(),
-                leito.getUnidade().getId(),
-                leito.getTipo(),
-                a.getStatusEmAlerta(),
-                a.getSituacao(),
-                a.getMinutosSemAtualizacao(),
-                a.getAcaoExecutada(),
-                a.getDataAbertura(),
-                a.getDataResolucao(),
-                a.getResolvidoPor());
-    }
 }

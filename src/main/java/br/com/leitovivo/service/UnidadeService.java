@@ -2,10 +2,11 @@ package br.com.leitovivo.service;
 
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.persistence.UnidadeRepository;
-import br.com.leitovivo.web.dto.CriarUnidadeRequest;
-import br.com.leitovivo.web.dto.UnidadeResponse;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.persistence.repository.UnidadeRepository;
+import br.com.leitovivo.web.dto.request.CriarUnidadeRequest;
+import br.com.leitovivo.web.dto.response.UnidadeResponse;
+import br.com.leitovivo.web.mapper.UnidadeMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +26,13 @@ public class UnidadeService {
         validar(request);
         Unidade salva = unidadeRepository.save(
                 new Unidade(request.nome().trim(), request.municipio().trim(), request.regiao().trim(), request.tipo().trim()));
-        return toResponse(salva);
+        return UnidadeMapper.toResponse(salva);
     }
 
     @Transactional(readOnly = true)
     public UnidadeResponse buscarPorId(UUID id) {
         return unidadeRepository.findById(id)
-                .map(this::toResponse)
+                .map(UnidadeMapper::toResponse)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Unidade não encontrada: " + id));
     }
 
@@ -51,12 +52,4 @@ public class UnidadeService {
         }
     }
 
-    private UnidadeResponse toResponse(Unidade unidade) {
-        return new UnidadeResponse(
-                unidade.getId(),
-                unidade.getNome(),
-                unidade.getMunicipio(),
-                unidade.getRegiao(),
-                unidade.getTipo());
-    }
 }

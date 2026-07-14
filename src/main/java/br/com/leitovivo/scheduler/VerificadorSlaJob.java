@@ -1,16 +1,16 @@
 package br.com.leitovivo.scheduler;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
-import br.com.leitovivo.domain.sla.DecisaoSla;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.enums.DecisaoSla;
 import br.com.leitovivo.domain.sla.RegraAlertaSla;
-import br.com.leitovivo.domain.sla.SlaRegra;
+import br.com.leitovivo.domain.sla.model.SlaAplicavel;
 import br.com.leitovivo.domain.sla.SlaResolver;
-import br.com.leitovivo.persistence.AlertaLeito;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoSlaRepository;
+import br.com.leitovivo.persistence.entity.AlertaLeito;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoSlaRepository;
 import br.com.leitovivo.service.AlertaService;
 import br.com.leitovivo.service.LeitoService;
 import br.com.leitovivo.service.SlaService;
@@ -64,7 +64,7 @@ public class VerificadorSlaJob {
      */
     @Transactional
     public void executar(Instant agora) {
-        List<SlaRegra> regras = slaService.listarComoRegras();
+        List<SlaAplicavel> regras = slaService.listarComoRegras();
         List<Leito> leitos = leitoSlaRepository.findByStatusIn(STATUS_MONITORADOS);
 
         for (Leito leito : leitos) {
@@ -77,7 +77,7 @@ public class VerificadorSlaJob {
         }
     }
 
-    private void processar(Leito leito, SlaRegra sla, Instant agora) {
+    private void processar(Leito leito, SlaAplicavel sla, Instant agora) {
         DecisaoSla decisao = RegraAlertaSla.avaliar(
                 leito.getStatus(),
                 leito.getDataUltimaAtualizacaoStatus(),
@@ -97,10 +97,10 @@ public class VerificadorSlaJob {
             leitoService.transicionar(
                     leito.getId(),
                     EventoLeito.FINALIZAR_HIGIENIZACAO,
-                    AutorAcao.SISTEMA,
+                    Autor.SISTEMA,
                     MOTIVO_TIMEOUT_HIGIENIZACAO);
             leitoSlaRepository.marcarLiberadoAutomaticamente(leito.getId());
-            alertaService.registrarAcaoExecutada(alerta.getId(), AcaoAutomaticaSla.LIBERAR_LEITO);
+            alertaService.registrarAcaoExecutada(alerta.getId(), AcaoAutomatica.LIBERAR_LEITO);
         }
     }
 }

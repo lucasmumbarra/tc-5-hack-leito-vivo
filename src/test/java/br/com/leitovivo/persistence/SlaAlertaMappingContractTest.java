@@ -1,9 +1,12 @@
 package br.com.leitovivo.persistence;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
-import br.com.leitovivo.domain.sla.SituacaoAlerta;
+import br.com.leitovivo.persistence.entity.AlertaLeito;
+import br.com.leitovivo.persistence.entity.SlaStatusLeito;
+
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
@@ -31,7 +34,7 @@ class SlaAlertaMappingContractTest {
 
         Field acao = SlaStatusLeito.class.getDeclaredField("acaoAutomatica");
         assertEquals(EnumType.STRING, acao.getAnnotation(Enumerated.class).value());
-        assertEquals(AcaoAutomaticaSla.class, acao.getType());
+        assertEquals(AcaoAutomatica.class, acao.getType());
     }
 
     @Test

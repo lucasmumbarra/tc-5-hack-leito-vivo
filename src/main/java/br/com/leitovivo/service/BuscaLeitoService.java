@@ -1,12 +1,13 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.MatrizCompatibilidadeLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.compatibilidade.MatrizCompatibilidadeLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.PayloadInvalidoException;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoBuscaIndicadorRepository;
-import br.com.leitovivo.web.dto.LeitoCompativelResponse;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
+import br.com.leitovivo.web.dto.response.LeitoCompativelResponse;
+import br.com.leitovivo.web.mapper.BuscaLeitoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,17 +36,8 @@ public class BuscaLeitoService {
         return leitoBuscaIndicadorRepository
                 .findByRegiaoAndStatusAndTipoIn(regiao.trim(), StatusLeito.LIVRE, tipos)
                 .stream()
-                .map(this::toResponse)
+                .map(BuscaLeitoMapper::toResponse)
                 .toList();
     }
 
-    private LeitoCompativelResponse toResponse(Leito leito) {
-        return new LeitoCompativelResponse(
-                leito.getId(),
-                leito.getUnidade().getId(),
-                leito.getUnidade().getNome(),
-                leito.getUnidade().getRegiao(),
-                leito.getCodigo(),
-                leito.getTipo());
-    }
 }

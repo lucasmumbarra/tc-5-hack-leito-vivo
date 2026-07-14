@@ -1,8 +1,13 @@
 package br.com.leitovivo.persistence;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
+import br.com.leitovivo.persistence.entity.HistoricoStatusLeito;
+import br.com.leitovivo.persistence.entity.Internacao;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.enums.StatusInternacao;
+
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -36,7 +41,7 @@ class CicloInternacaoMappingContractTest {
 
         Field autor = HistoricoStatusLeito.class.getDeclaredField("autor");
         assertEquals(EnumType.STRING, autor.getAnnotation(Enumerated.class).value());
-        assertEquals(AutorAcao.class, autor.getType());
+        assertEquals(Autor.class, autor.getType());
 
         Field evento = HistoricoStatusLeito.class.getDeclaredField("evento");
         assertEquals(EventoLeito.class, evento.getType());

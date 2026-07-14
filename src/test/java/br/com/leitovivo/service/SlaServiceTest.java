@@ -1,13 +1,13 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.SlaStatusLeito;
-import br.com.leitovivo.persistence.SlaStatusLeitoRepository;
-import br.com.leitovivo.web.dto.AtualizarSlaRequest;
-import br.com.leitovivo.web.dto.SlaResponse;
+import br.com.leitovivo.persistence.entity.SlaStatusLeito;
+import br.com.leitovivo.persistence.repository.SlaStatusLeitoRepository;
+import br.com.leitovivo.web.dto.request.AtualizarSlaRequest;
+import br.com.leitovivo.web.dto.response.SlaResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +36,7 @@ class SlaServiceTest {
     void setUp() {
         slaService = new SlaService(slaStatusLeitoRepository);
         slaId = UUID.randomUUID();
-        sla = new SlaStatusLeito(slaId, null, null, StatusLeito.OCUPADO, 28800, null, AcaoAutomaticaSla.NENHUMA);
+        sla = new SlaStatusLeito(slaId, null, null, StatusLeito.OCUPADO, 28800, null, AcaoAutomatica.NENHUMA);
     }
 
     @Test
@@ -50,7 +50,7 @@ class SlaServiceTest {
         when(slaStatusLeitoRepository.findById(slaId)).thenReturn(Optional.of(sla));
 
         SlaResponse response = slaService.atualizar(
-                slaId, new AtualizarSlaRequest(2, null, AcaoAutomaticaSla.NENHUMA));
+                slaId, new AtualizarSlaRequest(2, null, AcaoAutomatica.NENHUMA));
 
         assertEquals(2, response.prazoAlertaMin());
     }
@@ -60,12 +60,12 @@ class SlaServiceTest {
         when(slaStatusLeitoRepository.findById(slaId)).thenReturn(Optional.empty());
 
         assertThrows(RecursoNaoEncontradoException.class, () ->
-                slaService.atualizar(slaId, new AtualizarSlaRequest(10, null, AcaoAutomaticaSla.NENHUMA)));
+                slaService.atualizar(slaId, new AtualizarSlaRequest(10, null, AcaoAutomatica.NENHUMA)));
     }
 
     @Test
     void atualizarPrazoInvalido422() {
         assertThrows(PayloadInvalidoException.class, () ->
-                slaService.atualizar(slaId, new AtualizarSlaRequest(0, null, AcaoAutomaticaSla.NENHUMA)));
+                slaService.atualizar(slaId, new AtualizarSlaRequest(0, null, AcaoAutomatica.NENHUMA)));
     }
 }

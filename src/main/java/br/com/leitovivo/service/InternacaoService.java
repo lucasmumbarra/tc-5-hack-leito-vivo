@@ -1,20 +1,21 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.Internacao;
-import br.com.leitovivo.persistence.InternacaoRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoRepository;
-import br.com.leitovivo.persistence.Paciente;
-import br.com.leitovivo.persistence.PacienteRepository;
-import br.com.leitovivo.persistence.StatusInternacao;
-import br.com.leitovivo.web.dto.CriarInternacaoRequest;
-import br.com.leitovivo.web.dto.InternacaoResponse;
+import br.com.leitovivo.persistence.entity.Internacao;
+import br.com.leitovivo.persistence.repository.InternacaoRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoRepository;
+import br.com.leitovivo.persistence.entity.Paciente;
+import br.com.leitovivo.persistence.repository.PacienteRepository;
+import br.com.leitovivo.persistence.enums.StatusInternacao;
+import br.com.leitovivo.web.dto.request.CriarInternacaoRequest;
+import br.com.leitovivo.web.dto.response.InternacaoResponse;
+import br.com.leitovivo.web.mapper.InternacaoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,12 +75,12 @@ public class InternacaoService {
         leitoService.transicionar(
                 leito.getId(),
                 EventoLeito.INTERNAR_PACIENTE,
-                AutorAcao.USUARIO,
+                Autor.USUARIO,
                 request.motivo());
 
         Instant agora = Instant.now(clock);
         Internacao internacao = internacaoRepository.save(new Internacao(leito, paciente, agora));
-        return toResponse(internacao);
+        return InternacaoMapper.toResponse(internacao);
     }
 
     @Transactional
@@ -97,10 +98,10 @@ public class InternacaoService {
         leitoService.transicionar(
                 internacao.getLeito().getId(),
                 EventoLeito.REGISTRAR_ALTA,
-                AutorAcao.USUARIO,
+                Autor.USUARIO,
                 motivo);
 
-        return toResponse(internacao);
+        return InternacaoMapper.toResponse(internacao);
     }
 
     private void validar(CriarInternacaoRequest request) {
@@ -115,13 +116,4 @@ public class InternacaoService {
         }
     }
 
-    private InternacaoResponse toResponse(Internacao internacao) {
-        return new InternacaoResponse(
-                internacao.getId(),
-                internacao.getLeito().getId(),
-                internacao.getPaciente().getId(),
-                internacao.getStatus(),
-                internacao.getDataEntrada(),
-                internacao.getDataAlta());
-    }
 }

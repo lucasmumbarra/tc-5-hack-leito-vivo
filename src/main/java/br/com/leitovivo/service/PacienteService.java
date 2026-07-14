@@ -1,10 +1,11 @@
 package br.com.leitovivo.service;
 
 import br.com.leitovivo.exception.PayloadInvalidoException;
-import br.com.leitovivo.persistence.Paciente;
-import br.com.leitovivo.persistence.PacienteRepository;
-import br.com.leitovivo.web.dto.CriarPacienteRequest;
-import br.com.leitovivo.web.dto.PacienteResponse;
+import br.com.leitovivo.persistence.entity.Paciente;
+import br.com.leitovivo.persistence.repository.PacienteRepository;
+import br.com.leitovivo.web.dto.request.CriarPacienteRequest;
+import br.com.leitovivo.web.dto.response.PacienteResponse;
+import br.com.leitovivo.web.mapper.PacienteMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,7 @@ public class PacienteService {
         validar(request);
         Paciente salvo = pacienteRepository.save(
                 new Paciente(request.nome().trim(), request.dataNascimento(), request.cartaoSus().trim()));
-        return toResponse(salvo);
+        return PacienteMapper.toResponse(salvo);
     }
 
     private void validar(CriarPacienteRequest request) {
@@ -40,11 +41,4 @@ public class PacienteService {
         }
     }
 
-    private PacienteResponse toResponse(Paciente paciente) {
-        return new PacienteResponse(
-                paciente.getId(),
-                paciente.getNome(),
-                paciente.getDataNascimento(),
-                paciente.getCartaoSus());
-    }
 }

@@ -1,13 +1,14 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.sla.AcaoAutomaticaSla;
-import br.com.leitovivo.domain.sla.SlaRegra;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.model.SlaAplicavel;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.SlaStatusLeito;
-import br.com.leitovivo.persistence.SlaStatusLeitoRepository;
-import br.com.leitovivo.web.dto.AtualizarSlaRequest;
-import br.com.leitovivo.web.dto.SlaResponse;
+import br.com.leitovivo.persistence.entity.SlaStatusLeito;
+import br.com.leitovivo.persistence.repository.SlaStatusLeitoRepository;
+import br.com.leitovivo.web.dto.request.AtualizarSlaRequest;
+import br.com.leitovivo.web.dto.response.SlaResponse;
+import br.com.leitovivo.web.mapper.SlaMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,14 +27,14 @@ public class SlaService {
     @Transactional(readOnly = true)
     public List<SlaResponse> listar() {
         return slaStatusLeitoRepository.findAll().stream()
-                .map(this::toResponse)
+                .map(SlaMapper::toResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<SlaRegra> listarComoRegras() {
+    public List<SlaAplicavel> listarComoRegras() {
         return slaStatusLeitoRepository.findAll().stream()
-                .map(this::toRegra)
+                .map(SlaMapper::toRegra)
                 .toList();
     }
 
@@ -48,7 +49,7 @@ public class SlaService {
         if (request.acaoAutomatica() == null) {
             throw new PayloadInvalidoException("acaoAutomatica é obrigatória");
         }
-        if (request.acaoAutomatica() == AcaoAutomaticaSla.LIBERAR_LEITO) {
+        if (request.acaoAutomatica() == AcaoAutomatica.LIBERAR_LEITO) {
             if (request.prazoAcaoMin() == null || request.prazoAcaoMin() <= 0) {
                 throw new PayloadInvalidoException("prazoAcaoMin é obrigatório quando acaoAutomatica=LIBERAR_LEITO");
             }
@@ -60,28 +61,7 @@ public class SlaService {
         SlaStatusLeito sla = slaStatusLeitoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("SLA não encontrado: " + id));
         sla.atualizarPrazos(request.prazoAlertaMin(), request.prazoAcaoMin(), request.acaoAutomatica());
-        return toResponse(sla);
+        return SlaMapper.toResponse(sla);
     }
 
-    private SlaResponse toResponse(SlaStatusLeito s) {
-        return new SlaResponse(
-                s.getId(),
-                s.getUnidadeId(),
-                s.getTipoLeito(),
-                s.getStatus(),
-                s.getPrazoAlertaMin(),
-                s.getPrazoAcaoMin(),
-                s.getAcaoAutomatica());
-    }
-
-    private SlaRegra toRegra(SlaStatusLeito s) {
-        return new SlaRegra(
-                s.getId(),
-                s.getUnidadeId(),
-                s.getTipoLeito(),
-                s.getStatus(),
-                s.getPrazoAlertaMin(),
-                s.getPrazoAcaoMin(),
-                s.getAcaoAutomatica());
-    }
 }

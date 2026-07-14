@@ -1,18 +1,19 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.sla.SituacaoAlerta;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.AlertaIndicadorRepository;
-import br.com.leitovivo.persistence.HistoricoIndicadorRepository;
-import br.com.leitovivo.persistence.HistoricoStatusLeito;
-import br.com.leitovivo.persistence.Internacao;
-import br.com.leitovivo.persistence.InternacaoIndicadorRepository;
-import br.com.leitovivo.persistence.LeitoBuscaIndicadorRepository;
-import br.com.leitovivo.persistence.StatusInternacao;
-import br.com.leitovivo.persistence.UnidadeRepository;
-import br.com.leitovivo.web.dto.ContagemPorStatusResponse;
-import br.com.leitovivo.web.dto.IndicadoresUnidadeResponse;
+import br.com.leitovivo.persistence.repository.AlertaIndicadorRepository;
+import br.com.leitovivo.persistence.repository.HistoricoIndicadorRepository;
+import br.com.leitovivo.persistence.entity.HistoricoStatusLeito;
+import br.com.leitovivo.persistence.entity.Internacao;
+import br.com.leitovivo.persistence.repository.InternacaoIndicadorRepository;
+import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
+import br.com.leitovivo.persistence.enums.StatusInternacao;
+import br.com.leitovivo.persistence.repository.UnidadeRepository;
+import br.com.leitovivo.web.dto.response.ContagemPorStatusResponse;
+import br.com.leitovivo.web.dto.response.IndicadoresUnidadeResponse;
+import br.com.leitovivo.web.mapper.IndicadorMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,7 +63,7 @@ public class IndicadorService {
         long alertas = alertaIndicadorRepository.countByUnidadeIdAndSituacao(unidadeId, SituacaoAlerta.ABERTO);
         long liberados = leitoBuscaIndicadorRepository.countByUnidadeIdAndLiberadoAutomaticamenteTrue(unidadeId);
 
-        return new IndicadoresUnidadeResponse(
+        return IndicadorMapper.toResponse(
                 unidadeId, taxa, contagem, permanencia, giro, alertas, liberados);
     }
 
@@ -74,7 +75,7 @@ public class IndicadorService {
         for (Object[] row : leitoBuscaIndicadorRepository.countGroupedByStatus(unidadeId)) {
             mapa.put((StatusLeito) row[0], (Long) row[1]);
         }
-        return new ContagemPorStatusResponse(
+        return IndicadorMapper.toContagemPorStatus(
                 mapa.get(StatusLeito.LIVRE),
                 mapa.get(StatusLeito.RESERVADO),
                 mapa.get(StatusLeito.OCUPADO),

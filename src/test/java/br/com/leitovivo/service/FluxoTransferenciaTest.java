@@ -1,16 +1,16 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoBuscaIndicadorRepository;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.web.dto.CriarInternacaoRequest;
-import br.com.leitovivo.web.dto.InternacaoResponse;
-import br.com.leitovivo.web.dto.LeitoCompativelResponse;
-import br.com.leitovivo.web.dto.LeitoResponse;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.web.dto.request.CriarInternacaoRequest;
+import br.com.leitovivo.web.dto.response.InternacaoResponse;
+import br.com.leitovivo.web.dto.response.LeitoCompativelResponse;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -75,13 +75,13 @@ class FluxoTransferenciaTest {
         assertEquals(leitoId, encontrados.getFirst().id());
 
         when(leitoService.transicionar(
-                leitoId, EventoLeito.RESERVAR_LEITO, AutorAcao.USUARIO, "transferencia"))
+                leitoId, EventoLeito.RESERVAR_LEITO, Autor.USUARIO, "transferencia"))
                 .thenReturn(new LeitoResponse(
                         leitoId, unidadeId, "UTI-TX", TipoLeito.UTI, StatusLeito.RESERVADO,
                         1L, false, Instant.parse("2026-07-13T11:00:00Z")));
 
         LeitoResponse reservado = leitoService.transicionar(
-                leitoId, EventoLeito.RESERVAR_LEITO, AutorAcao.USUARIO, "transferencia");
+                leitoId, EventoLeito.RESERVAR_LEITO, Autor.USUARIO, "transferencia");
         assertEquals(StatusLeito.RESERVADO, reservado.status());
 
         when(buscaRepo.findByRegiaoAndStatusAndTipoIn(
@@ -93,7 +93,7 @@ class FluxoTransferenciaTest {
         when(internacaoService.internar(any(CriarInternacaoRequest.class)))
                 .thenReturn(new InternacaoResponse(
                         UUID.randomUUID(), leitoId, pacienteId,
-                        br.com.leitovivo.persistence.StatusInternacao.ATIVA,
+                        br.com.leitovivo.persistence.enums.StatusInternacao.ATIVA,
                         Instant.parse("2026-07-13T12:00:00Z"), null));
 
         InternacaoResponse internacao = internacaoService.internar(
@@ -101,7 +101,7 @@ class FluxoTransferenciaTest {
         assertEquals(leitoId, internacao.leitoId());
 
         verify(leitoService).transicionar(
-                leitoId, EventoLeito.RESERVAR_LEITO, AutorAcao.USUARIO, "transferencia");
+                leitoId, EventoLeito.RESERVAR_LEITO, Autor.USUARIO, "transferencia");
         verify(internacaoService).internar(any(CriarInternacaoRequest.class));
     }
 

@@ -1,16 +1,16 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.HistoricoStatusLeitoRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoRepository;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.persistence.UnidadeRepository;
-import br.com.leitovivo.web.dto.CriarLeitoRequest;
-import br.com.leitovivo.web.dto.LeitoResponse;
+import br.com.leitovivo.persistence.repository.HistoricoStatusLeitoRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoRepository;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.persistence.repository.UnidadeRepository;
+import br.com.leitovivo.web.dto.request.CriarLeitoRequest;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

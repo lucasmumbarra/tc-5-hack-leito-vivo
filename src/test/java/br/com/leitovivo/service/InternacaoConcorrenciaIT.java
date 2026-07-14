@@ -1,16 +1,16 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.TipoLeito;
-import br.com.leitovivo.persistence.InternacaoRepository;
-import br.com.leitovivo.persistence.StatusInternacao;
-import br.com.leitovivo.web.dto.CriarInternacaoRequest;
-import br.com.leitovivo.web.dto.CriarLeitoRequest;
-import br.com.leitovivo.web.dto.CriarPacienteRequest;
-import br.com.leitovivo.web.dto.CriarUnidadeRequest;
-import br.com.leitovivo.web.dto.InternacaoResponse;
-import br.com.leitovivo.web.dto.LeitoResponse;
-import br.com.leitovivo.web.dto.PacienteResponse;
-import br.com.leitovivo.web.dto.UnidadeResponse;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
+import br.com.leitovivo.persistence.repository.InternacaoRepository;
+import br.com.leitovivo.persistence.enums.StatusInternacao;
+import br.com.leitovivo.web.dto.request.CriarInternacaoRequest;
+import br.com.leitovivo.web.dto.request.CriarLeitoRequest;
+import br.com.leitovivo.web.dto.request.CriarPacienteRequest;
+import br.com.leitovivo.web.dto.request.CriarUnidadeRequest;
+import br.com.leitovivo.web.dto.response.InternacaoResponse;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
+import br.com.leitovivo.web.dto.response.PacienteResponse;
+import br.com.leitovivo.web.dto.response.UnidadeResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;

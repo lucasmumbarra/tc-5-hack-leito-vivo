@@ -1,6 +1,8 @@
 package br.com.leitovivo.domain.sla;
 
-import br.com.leitovivo.domain.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
+import br.com.leitovivo.domain.sla.enums.DecisaoSla;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -20,7 +22,7 @@ public final class RegraAlertaSla {
             Instant dataUltimaAtualizacaoStatus,
             int prazoAlertaMin,
             Integer prazoAcaoMin,
-            AcaoAutomaticaSla acaoAutomatica,
+            AcaoAutomatica acaoAutomatica,
             Instant agora) {
         Objects.requireNonNull(statusAtual, "statusAtual");
         Objects.requireNonNull(dataUltimaAtualizacaoStatus, "dataUltimaAtualizacaoStatus");
@@ -35,7 +37,7 @@ public final class RegraAlertaSla {
         boolean liberar = statusAtual == StatusLeito.EM_HIGIENIZACAO
                 && prazoAcaoMin != null
                 && minutos >= prazoAcaoMin
-                && acaoAutomatica == AcaoAutomaticaSla.LIBERAR_LEITO;
+                && acaoAutomatica == AcaoAutomatica.LIBERAR_LEITO;
 
         return liberar ? DecisaoSla.ABRIR_ALERTA_E_LIBERAR : DecisaoSla.ABRIR_ALERTA;
     }

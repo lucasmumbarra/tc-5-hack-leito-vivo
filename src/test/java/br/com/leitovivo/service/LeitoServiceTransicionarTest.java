@@ -1,17 +1,17 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.TransicaoInvalidaException;
-import br.com.leitovivo.persistence.HistoricoStatusLeito;
-import br.com.leitovivo.persistence.HistoricoStatusLeitoRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoRepository;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.persistence.UnidadeRepository;
-import br.com.leitovivo.web.dto.LeitoResponse;
+import br.com.leitovivo.persistence.entity.HistoricoStatusLeito;
+import br.com.leitovivo.persistence.repository.HistoricoStatusLeitoRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoRepository;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.persistence.repository.UnidadeRepository;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +66,7 @@ class LeitoServiceTransicionarTest {
         when(historicoStatusLeitoRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         LeitoResponse response = leitoService.transicionar(
-                leito.getId(), EventoLeito.RESERVAR_LEITO, AutorAcao.USUARIO, "reserva");
+                leito.getId(), EventoLeito.RESERVAR_LEITO, Autor.USUARIO, "reserva");
 
         assertEquals(StatusLeito.RESERVADO, response.status());
         assertEquals(AGORA, response.dataUltimaAtualizacaoStatus());
@@ -77,7 +77,7 @@ class LeitoServiceTransicionarTest {
         assertEquals(StatusLeito.LIVRE, h.getStatusAnterior());
         assertEquals(StatusLeito.RESERVADO, h.getStatusNovo());
         assertEquals(EventoLeito.RESERVAR_LEITO, h.getEvento());
-        assertEquals(AutorAcao.USUARIO, h.getAutor());
+        assertEquals(Autor.USUARIO, h.getAutor());
     }
 
     @Test
@@ -86,7 +86,7 @@ class LeitoServiceTransicionarTest {
         when(leitoRepository.findById(leito.getId())).thenReturn(Optional.of(leito));
 
         assertThrows(TransicaoInvalidaException.class, () -> leitoService.transicionar(
-                leito.getId(), EventoLeito.INTERNAR_PACIENTE, AutorAcao.USUARIO, null));
+                leito.getId(), EventoLeito.INTERNAR_PACIENTE, Autor.USUARIO, null));
 
         assertEquals(StatusLeito.OCUPADO, leito.getStatus());
         verify(historicoStatusLeitoRepository, never()).save(any());

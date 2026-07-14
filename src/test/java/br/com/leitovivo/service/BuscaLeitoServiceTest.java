@@ -1,12 +1,12 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.PayloadInvalidoException;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoBuscaIndicadorRepository;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.web.dto.LeitoCompativelResponse;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.web.dto.response.LeitoCompativelResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

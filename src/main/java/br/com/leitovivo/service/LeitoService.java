@@ -1,23 +1,24 @@
 package br.com.leitovivo.service;
 
-import br.com.leitovivo.domain.AutorAcao;
-import br.com.leitovivo.domain.EventoLeito;
-import br.com.leitovivo.domain.MaquinaEstadosLeito;
-import br.com.leitovivo.domain.StatusLeito;
-import br.com.leitovivo.domain.TipoLeito;
+import br.com.leitovivo.domain.leito.enums.Autor;
+import br.com.leitovivo.domain.leito.enums.EventoLeito;
+import br.com.leitovivo.domain.leito.MaquinaEstadosLeito;
+import br.com.leitovivo.domain.leito.enums.StatusLeito;
+import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
-import br.com.leitovivo.persistence.HistoricoStatusLeito;
-import br.com.leitovivo.persistence.HistoricoStatusLeitoRepository;
-import br.com.leitovivo.persistence.Leito;
-import br.com.leitovivo.persistence.LeitoRepository;
-import br.com.leitovivo.persistence.Unidade;
-import br.com.leitovivo.persistence.UnidadeRepository;
-import br.com.leitovivo.web.dto.CriarLeitoRequest;
-import br.com.leitovivo.web.dto.HistoricoStatusResponse;
-import br.com.leitovivo.web.dto.LeitoResponse;
-import br.com.leitovivo.web.dto.TransicionarLeitoRequest;
+import br.com.leitovivo.persistence.entity.HistoricoStatusLeito;
+import br.com.leitovivo.persistence.repository.HistoricoStatusLeitoRepository;
+import br.com.leitovivo.persistence.entity.Leito;
+import br.com.leitovivo.persistence.repository.LeitoRepository;
+import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.persistence.repository.UnidadeRepository;
+import br.com.leitovivo.web.dto.request.CriarLeitoRequest;
+import br.com.leitovivo.web.dto.response.HistoricoStatusResponse;
+import br.com.leitovivo.web.dto.response.LeitoResponse;
+import br.com.leitovivo.web.dto.request.TransicionarLeitoRequest;
+import br.com.leitovivo.web.mapper.LeitoMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,13 +67,13 @@ public class LeitoService {
                 StatusLeito.LIVRE,
                 false,
                 agora);
-        return toResponse(leitoRepository.save(leito));
+        return LeitoMapper.toResponse(leitoRepository.save(leito));
     }
 
     @Transactional(readOnly = true)
     public List<LeitoResponse> listar(UUID unidadeId, TipoLeito tipo, StatusLeito status) {
         return leitoRepository.filtrar(unidadeId, tipo, status).stream()
-                .map(this::toResponse)
+                .map(LeitoMapper::toResponse)
                 .toList();
     }
 
@@ -80,7 +81,7 @@ public class LeitoService {
      * Funil único de transição: único ponto que altera status após a criação.
      */
     @Transactional
-    public LeitoResponse transicionar(UUID leitoId, EventoLeito evento, AutorAcao autor, String motivo) {
+    public LeitoResponse transicionar(UUID leitoId, EventoLeito evento, Autor autor, String motivo) {
         if (evento == null) {
             throw new PayloadInvalidoException("evento é obrigatório");
         }
@@ -98,7 +99,7 @@ public class LeitoService {
         historicoStatusLeitoRepository.save(new HistoricoStatusLeito(
                 leito, anterior, novo, evento, autor, motivo, agora));
 
-        return toResponse(leito);
+        return LeitoMapper.toResponse(leito);
     }
 
     @Transactional
@@ -112,14 +113,7 @@ public class LeitoService {
             throw new RecursoNaoEncontradoException("Leito não encontrado: " + leitoId);
         }
         return historicoStatusLeitoRepository.findByLeitoIdOrderByDataHoraAsc(leitoId).stream()
-                .map(h -> new HistoricoStatusResponse(
-                        h.getId(),
-                        h.getStatusAnterior(),
-                        h.getStatusNovo(),
-                        h.getEvento(),
-                        h.getAutor(),
-                        h.getMotivo(),
-                        h.getDataHora()))
+                .map(LeitoMapper::toHistoricoResponse)
                 .toList();
     }
 
@@ -138,15 +132,4 @@ public class LeitoService {
         }
     }
 
-    private LeitoResponse toResponse(Leito leito) {
-        return new LeitoResponse(
-                leito.getId(),
-                leito.getUnidade().getId(),
-                leito.getCodigo(),
-                leito.getTipo(),
-                leito.getStatus(),
-                leito.getVersao(),
-                leito.isLiberadoAutomaticamente(),
-                leito.getDataUltimaAtualizacaoStatus());
-    }
 }
