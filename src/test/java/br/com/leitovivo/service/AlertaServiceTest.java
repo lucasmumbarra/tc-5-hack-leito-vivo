@@ -6,23 +6,23 @@ import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
 import br.com.leitovivo.domain.sla.enums.SituacaoAlerta;
 import br.com.leitovivo.exception.ConflitoNegocioException;
 import br.com.leitovivo.persistence.entity.AlertaLeito;
-import br.com.leitovivo.persistence.repository.AlertaLeitoRepository;
 import br.com.leitovivo.persistence.entity.Leito;
 import br.com.leitovivo.persistence.entity.Unidade;
-import br.com.leitovivo.web.dto.response.AlertaResponse;
+import br.com.leitovivo.persistence.repository.AlertaLeitoRepository;
 import br.com.leitovivo.web.dto.request.ResolverAlertaRequest;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
+import br.com.leitovivo.web.dto.response.AlertaResponse;
 import java.lang.reflect.Field;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -35,84 +35,84 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AlertaServiceTest {
 
-    private static final Instant AGORA = Instant.parse("2026-07-13T18:00:00Z");
+  private static final Instant AGORA = Instant.parse("2026-07-13T18:00:00Z");
 
-    @Mock
-    private AlertaLeitoRepository alertaLeitoRepository;
+  @Mock
+  private AlertaLeitoRepository alertaLeitoRepository;
 
-    private AlertaService alertaService;
-    private Leito leito;
-    private AlertaLeito alerta;
+  private AlertaService alertaService;
+  private Leito leito;
+  private AlertaLeito alerta;
 
-    @BeforeEach
-    void setUp() throws Exception {
-        alertaService = new AlertaService(alertaLeitoRepository, Clock.fixed(AGORA, ZoneOffset.UTC));
-        Unidade unidade = new Unidade("H", "SP", "SE", "Geral");
-        setField(unidade, "id", UUID.randomUUID());
-        leito = new Leito(unidade, "L-1", TipoLeito.UTI, StatusLeito.OCUPADO, false, AGORA.minusSeconds(3600));
-        setField(leito, "id", UUID.randomUUID());
-        alerta = new AlertaLeito(UUID.randomUUID(), leito, StatusLeito.OCUPADO, SituacaoAlerta.ABERTO, 60, AGORA);
-    }
+  @BeforeEach
+  void setUp() throws Exception {
+    alertaService = new AlertaService(alertaLeitoRepository, Clock.fixed(AGORA, ZoneOffset.UTC));
+    Unidade unidade = new Unidade("H", "SP", "SE", "Geral");
+    setField(unidade, "id", UUID.randomUUID());
+    leito = new Leito(unidade, "L-1", TipoLeito.UTI, StatusLeito.OCUPADO, false, AGORA.minusSeconds(3600));
+    setField(leito, "id", UUID.randomUUID());
+    alerta = new AlertaLeito(UUID.randomUUID(), leito, StatusLeito.OCUPADO, SituacaoAlerta.ABERTO, 60, AGORA);
+  }
 
-    @Test
-    void garantirAbertoInsereQuandoNaoExiste() {
-        when(alertaLeitoRepository.insertAbertoIgnoreConflict(any(), eq(leito.getId()), eq("OCUPADO"), anyInt(), eq(AGORA)))
-                .thenReturn(1);
-        when(alertaLeitoRepository.findByLeitoIdAndStatusEmAlertaAndSituacao(
-                leito.getId(), StatusLeito.OCUPADO, SituacaoAlerta.ABERTO))
-                .thenReturn(Optional.of(alerta));
+  @Test
+  void garantirAbertoInsereQuandoNaoExiste() {
+    when(alertaLeitoRepository.insertAbertoIgnoreConflict(any(), eq(leito.getId()), eq("OCUPADO"), anyInt(), eq(AGORA)))
+        .thenReturn(1);
+    when(alertaLeitoRepository.findByLeitoIdAndStatusEmAlertaAndSituacao(
+        leito.getId(), StatusLeito.OCUPADO, SituacaoAlerta.ABERTO))
+        .thenReturn(Optional.of(alerta));
 
-        AlertaLeito result = alertaService.garantirAberto(leito, StatusLeito.OCUPADO, 60, AGORA);
-        assertEquals(alerta.getId(), result.getId());
-    }
+    AlertaLeito result = alertaService.garantirAberto(leito, StatusLeito.OCUPADO, 60, AGORA);
+    assertEquals(alerta.getId(), result.getId());
+  }
 
-    @Test
-    void garantirAbertoIdempotenteQuandoConflito() {
-        when(alertaLeitoRepository.insertAbertoIgnoreConflict(any(), eq(leito.getId()), eq("OCUPADO"), anyInt(), eq(AGORA)))
-                .thenReturn(0);
-        when(alertaLeitoRepository.findByLeitoIdAndStatusEmAlertaAndSituacao(
-                leito.getId(), StatusLeito.OCUPADO, SituacaoAlerta.ABERTO))
-                .thenReturn(Optional.of(alerta));
+  @Test
+  void garantirAbertoIdempotenteQuandoConflito() {
+    when(alertaLeitoRepository.insertAbertoIgnoreConflict(any(), eq(leito.getId()), eq("OCUPADO"), anyInt(), eq(AGORA)))
+        .thenReturn(0);
+    when(alertaLeitoRepository.findByLeitoIdAndStatusEmAlertaAndSituacao(
+        leito.getId(), StatusLeito.OCUPADO, SituacaoAlerta.ABERTO))
+        .thenReturn(Optional.of(alerta));
 
-        AlertaLeito result = alertaService.garantirAberto(leito, StatusLeito.OCUPADO, 90, AGORA);
-        assertEquals(90, result.getMinutosSemAtualizacao());
-    }
+    AlertaLeito result = alertaService.garantirAberto(leito, StatusLeito.OCUPADO, 90, AGORA);
+    assertEquals(90, result.getMinutosSemAtualizacao());
+  }
 
-    @Test
-    void resolverAlertaAberto() {
-        when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
+  @Test
+  void resolverAlertaAberto() {
+    when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
 
-        AlertaResponse response = alertaService.resolver(
-                alerta.getId(), new ResolverAlertaRequest("enfermeira.ana"));
+    AlertaResponse response = alertaService.resolver(
+        alerta.getId(), new ResolverAlertaRequest("enfermeira.ana"));
 
-        assertEquals(SituacaoAlerta.RESOLVIDO, response.situacao());
-        assertEquals("enfermeira.ana", response.resolvidoPor());
-        assertEquals(AGORA, response.dataResolucao());
-    }
+    assertEquals(SituacaoAlerta.RESOLVIDO, response.situacao());
+    assertEquals("enfermeira.ana", response.resolvidoPor());
+    assertEquals(AGORA, response.dataResolucao());
+  }
 
-    @Test
-    void resolverJaResolvidoLanca409() {
-        alerta.resolver("alguem", AGORA.minusSeconds(10));
-        when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
+  @Test
+  void resolverJaResolvidoLanca409() {
+    alerta.resolver("alguem", AGORA.minusSeconds(10));
+    when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
 
-        assertThrows(ConflitoNegocioException.class, () ->
-                alertaService.resolver(alerta.getId(), new ResolverAlertaRequest("outro")));
-    }
+    assertThrows(ConflitoNegocioException.class, () ->
+        alertaService.resolver(alerta.getId(), new ResolverAlertaRequest("outro")));
+  }
 
-    @Test
-    void registrarAcaoExecutadaMantemAberto() {
-        when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
+  @Test
+  void registrarAcaoExecutadaMantemAberto() {
+    when(alertaLeitoRepository.findById(alerta.getId())).thenReturn(Optional.of(alerta));
 
-        alertaService.registrarAcaoExecutada(alerta.getId(), AcaoAutomatica.LIBERAR_LEITO);
+    alertaService.registrarAcaoExecutada(alerta.getId(), AcaoAutomatica.LIBERAR_LEITO);
 
-        assertEquals(AcaoAutomatica.LIBERAR_LEITO, alerta.getAcaoExecutada());
-        assertEquals(SituacaoAlerta.ABERTO, alerta.getSituacao());
-        verify(alertaLeitoRepository).findById(alerta.getId());
-    }
+    assertEquals(AcaoAutomatica.LIBERAR_LEITO, alerta.getAcaoExecutada());
+    assertEquals(SituacaoAlerta.ABERTO, alerta.getSituacao());
+    verify(alertaLeitoRepository).findById(alerta.getId());
+  }
 
-    private static void setField(Object target, String name, Object value) throws Exception {
-        Field field = target.getClass().getDeclaredField(name);
-        field.setAccessible(true);
-        field.set(target, value);
-    }
+  private static void setField(Object target, String name, Object value) throws Exception {
+    Field field = target.getClass().getDeclaredField(name);
+    field.setAccessible(true);
+    field.set(target, value);
+  }
 }

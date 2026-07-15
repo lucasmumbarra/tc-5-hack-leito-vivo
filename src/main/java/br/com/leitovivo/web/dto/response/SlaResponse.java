@@ -7,11 +7,11 @@ import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
 import java.util.UUID;
 
 public record SlaResponse(
-        UUID id,
-        UUID unidadeId,
-        TipoLeito tipoLeito,
-        StatusLeito status,
-        int prazoAlertaMin,
-        Integer prazoAcaoMin,
-        AcaoAutomatica acaoAutomatica) {
+    UUID id,
+    UUID unidadeId,
+    TipoLeito tipoLeito,
+    StatusLeito status,
+    int prazoAlertaMin,
+    Integer prazoAcaoMin,
+    AcaoAutomatica acaoAutomatica) {
 }

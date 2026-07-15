@@ -6,15 +6,12 @@ import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
 
 import java.util.UUID;
 
-/**
- * Visão imutável de uma linha de SLA para resolução em cascata (sem JPA).
- */
 public record SlaAplicavel(
-        UUID id,
-        UUID unidadeId,
-        TipoLeito tipoLeito,
-        StatusLeito status,
-        int prazoAlertaMin,
-        Integer prazoAcaoMin,
-        AcaoAutomatica acaoAutomatica) {
+    UUID id,
+    UUID unidadeId,
+    TipoLeito tipoLeito,
+    StatusLeito status,
+    int prazoAlertaMin,
+    Integer prazoAcaoMin,
+    AcaoAutomatica acaoAutomatica) {
 }

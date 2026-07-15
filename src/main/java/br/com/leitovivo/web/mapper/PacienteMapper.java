@@ -5,14 +5,14 @@ import br.com.leitovivo.web.dto.response.PacienteResponse;
 
 public final class PacienteMapper {
 
-    private PacienteMapper() {
-    }
+  private PacienteMapper() {
+  }
 
-    public static PacienteResponse toResponse(Paciente paciente) {
-        return new PacienteResponse(
-                paciente.getId(),
-                paciente.getNome(),
-                paciente.getDataNascimento(),
-                paciente.getCartaoSus());
-    }
+  public static PacienteResponse toResponse(Paciente paciente) {
+    return new PacienteResponse(
+        paciente.getId(),
+        paciente.getNome(),
+        paciente.getDataNascimento(),
+        paciente.getCartaoSus());
+  }
 }

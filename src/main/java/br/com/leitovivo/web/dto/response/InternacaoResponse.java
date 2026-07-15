@@ -6,10 +6,10 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record InternacaoResponse(
-        UUID id,
-        UUID leitoId,
-        UUID pacienteId,
-        StatusInternacao status,
-        Instant dataEntrada,
-        Instant dataAlta) {
+    UUID id,
+    UUID leitoId,
+    UUID pacienteId,
+    StatusInternacao status,
+    Instant dataEntrada,
+    Instant dataAlta) {
 }

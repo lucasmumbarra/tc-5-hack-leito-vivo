@@ -1,15 +1,18 @@
 package br.com.leitovivo.web.controller;
 
-import br.com.leitovivo.web.handler.GlobalExceptionHandler;
-
 import br.com.leitovivo.domain.leito.enums.Autor;
 import br.com.leitovivo.domain.leito.enums.EventoLeito;
 import br.com.leitovivo.domain.leito.enums.StatusLeito;
 import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.service.LeitoService;
+import br.com.leitovivo.web.dto.request.TransicionarLeitoRequest;
 import br.com.leitovivo.web.dto.response.HistoricoStatusResponse;
 import br.com.leitovivo.web.dto.response.LeitoResponse;
-import br.com.leitovivo.web.dto.request.TransicionarLeitoRequest;
+import br.com.leitovivo.web.handler.GlobalExceptionHandler;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,10 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,54 +33,54 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class LeitoTransicaoControllerTest {
 
-    @Mock
-    private LeitoService leitoService;
+  @Mock
+  private LeitoService leitoService;
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new LeitoController(leitoService))
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
-    }
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.standaloneSetup(new LeitoController(leitoService))
+        .setControllerAdvice(new GlobalExceptionHandler())
+        .build();
+  }
 
-    @Test
-    void patchStatusReservaLeito() throws Exception {
-        UUID id = UUID.randomUUID();
-        when(leitoService.transicionar(eq(id), any(TransicionarLeitoRequest.class)))
-                .thenReturn(new LeitoResponse(id, UUID.randomUUID(), "UTI-01", TipoLeito.UTI,
-                        StatusLeito.RESERVADO, 1L, false, Instant.parse("2026-07-13T17:00:00Z")));
+  @Test
+  void patchStatusReservaLeito() throws Exception {
+    UUID id = UUID.randomUUID();
+    when(leitoService.transicionar(eq(id), any(TransicionarLeitoRequest.class)))
+        .thenReturn(new LeitoResponse(id, UUID.randomUUID(), "UTI-01", TipoLeito.UTI,
+            StatusLeito.RESERVADO, 1L, false, Instant.parse("2026-07-13T17:00:00Z")));
 
-        mockMvc.perform(patch("/leitos/" + id + "/status")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {"evento":"RESERVAR_LEITO","autor":"USUARIO","motivo":"Transferência"}
-                                """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.status").value("RESERVADO"));
-    }
+    mockMvc.perform(patch("/leitos/" + id + "/status")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {"evento":"RESERVAR_LEITO","autor":"USUARIO","motivo":"Transferência"}
+                """))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("RESERVADO"));
+  }
 
-    @Test
-    void historicoCicloCompletoRetornaTresRegistros() throws Exception {
-        UUID id = UUID.randomUUID();
-        Instant t1 = Instant.parse("2026-07-13T10:00:00Z");
-        Instant t2 = Instant.parse("2026-07-13T11:00:00Z");
-        Instant t3 = Instant.parse("2026-07-13T12:00:00Z");
-        when(leitoService.listarHistorico(id)).thenReturn(List.of(
-                new HistoricoStatusResponse(UUID.randomUUID(), StatusLeito.LIVRE, StatusLeito.OCUPADO,
-                        EventoLeito.INTERNAR_PACIENTE, Autor.USUARIO, null, t1),
-                new HistoricoStatusResponse(UUID.randomUUID(), StatusLeito.OCUPADO, StatusLeito.EM_HIGIENIZACAO,
-                        EventoLeito.REGISTRAR_ALTA, Autor.USUARIO, null, t2),
-                new HistoricoStatusResponse(UUID.randomUUID(), StatusLeito.EM_HIGIENIZACAO, StatusLeito.LIVRE,
-                        EventoLeito.FINALIZAR_HIGIENIZACAO, Autor.USUARIO, null, t3)
-        ));
+  @Test
+  void historicoCicloCompletoRetornaTresRegistros() throws Exception {
+    UUID id = UUID.randomUUID();
+    Instant t1 = Instant.parse("2026-07-13T10:00:00Z");
+    Instant t2 = Instant.parse("2026-07-13T11:00:00Z");
+    Instant t3 = Instant.parse("2026-07-13T12:00:00Z");
+    when(leitoService.listarHistorico(id)).thenReturn(List.of(
+        new HistoricoStatusResponse(UUID.randomUUID(), StatusLeito.LIVRE, StatusLeito.OCUPADO,
+            EventoLeito.INTERNAR_PACIENTE, Autor.USUARIO, null, t1),
+        new HistoricoStatusResponse(UUID.randomUUID(), StatusLeito.OCUPADO, StatusLeito.EM_HIGIENIZACAO,
+            EventoLeito.REGISTRAR_ALTA, Autor.USUARIO, null, t2),
+        new HistoricoStatusResponse(UUID.randomUUID(), StatusLeito.EM_HIGIENIZACAO, StatusLeito.LIVRE,
+            EventoLeito.FINALIZAR_HIGIENIZACAO, Autor.USUARIO, null, t3)
+    ));
 
-        mockMvc.perform(get("/leitos/" + id + "/historico"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(3))
-                .andExpect(jsonPath("$[0].statusNovo").value("OCUPADO"))
-                .andExpect(jsonPath("$[1].statusNovo").value("EM_HIGIENIZACAO"))
-                .andExpect(jsonPath("$[2].statusNovo").value("LIVRE"));
-    }
+    mockMvc.perform(get("/leitos/" + id + "/historico"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(3))
+        .andExpect(jsonPath("$[0].statusNovo").value("OCUPADO"))
+        .andExpect(jsonPath("$[1].statusNovo").value("EM_HIGIENIZACAO"))
+        .andExpect(jsonPath("$[2].statusNovo").value("LIVRE"));
+  }
 }

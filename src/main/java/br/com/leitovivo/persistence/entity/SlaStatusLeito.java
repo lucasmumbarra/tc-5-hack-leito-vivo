@@ -16,81 +16,81 @@ import java.util.UUID;
 @Table(name = "sla_status_leito")
 public class SlaStatusLeito {
 
-    @Id
-    private UUID id;
+  @Id
+  private UUID id;
 
-    @Column(name = "unidade_id")
-    private UUID unidadeId;
+  @Column(name = "unidade_id")
+  private UUID unidadeId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_leito", length = 40)
-    private TipoLeito tipoLeito;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "tipo_leito", length = 40)
+  private TipoLeito tipoLeito;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 40)
-    private StatusLeito status;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 40)
+  private StatusLeito status;
 
-    @Column(name = "prazo_alerta_min", nullable = false)
-    private int prazoAlertaMin;
+  @Column(name = "prazo_alerta_min", nullable = false)
+  private int prazoAlertaMin;
 
-    @Column(name = "prazo_acao_min")
-    private Integer prazoAcaoMin;
+  @Column(name = "prazo_acao_min")
+  private Integer prazoAcaoMin;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "acao_automatica", nullable = false, length = 40)
-    private AcaoAutomatica acaoAutomatica;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "acao_automatica", nullable = false, length = 40)
+  private AcaoAutomatica acaoAutomatica;
 
-    protected SlaStatusLeito() {
-    }
+  protected SlaStatusLeito() {
+  }
 
-    public SlaStatusLeito(
-            UUID id,
-            UUID unidadeId,
-            TipoLeito tipoLeito,
-            StatusLeito status,
-            int prazoAlertaMin,
-            Integer prazoAcaoMin,
-            AcaoAutomatica acaoAutomatica) {
-        this.id = id;
-        this.unidadeId = unidadeId;
-        this.tipoLeito = tipoLeito;
-        this.status = status;
-        this.prazoAlertaMin = prazoAlertaMin;
-        this.prazoAcaoMin = prazoAcaoMin;
-        this.acaoAutomatica = acaoAutomatica;
-    }
+  public SlaStatusLeito(
+      UUID id,
+      UUID unidadeId,
+      TipoLeito tipoLeito,
+      StatusLeito status,
+      int prazoAlertaMin,
+      Integer prazoAcaoMin,
+      AcaoAutomatica acaoAutomatica) {
+    this.id = id;
+    this.unidadeId = unidadeId;
+    this.tipoLeito = tipoLeito;
+    this.status = status;
+    this.prazoAlertaMin = prazoAlertaMin;
+    this.prazoAcaoMin = prazoAcaoMin;
+    this.acaoAutomatica = acaoAutomatica;
+  }
 
-    public UUID getId() {
-        return id;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public UUID getUnidadeId() {
-        return unidadeId;
-    }
+  public UUID getUnidadeId() {
+    return unidadeId;
+  }
 
-    public TipoLeito getTipoLeito() {
-        return tipoLeito;
-    }
+  public TipoLeito getTipoLeito() {
+    return tipoLeito;
+  }
 
-    public StatusLeito getStatus() {
-        return status;
-    }
+  public StatusLeito getStatus() {
+    return status;
+  }
 
-    public int getPrazoAlertaMin() {
-        return prazoAlertaMin;
-    }
+  public int getPrazoAlertaMin() {
+    return prazoAlertaMin;
+  }
 
-    public Integer getPrazoAcaoMin() {
-        return prazoAcaoMin;
-    }
+  public Integer getPrazoAcaoMin() {
+    return prazoAcaoMin;
+  }
 
-    public AcaoAutomatica getAcaoAutomatica() {
-        return acaoAutomatica;
-    }
+  public AcaoAutomatica getAcaoAutomatica() {
+    return acaoAutomatica;
+  }
 
-    public void atualizarPrazos(int prazoAlertaMin, Integer prazoAcaoMin, AcaoAutomatica acaoAutomatica) {
-        this.prazoAlertaMin = prazoAlertaMin;
-        this.prazoAcaoMin = prazoAcaoMin;
-        this.acaoAutomatica = acaoAutomatica;
-    }
+  public void atualizarPrazos(int prazoAlertaMin, Integer prazoAcaoMin, AcaoAutomatica acaoAutomatica) {
+    this.prazoAlertaMin = prazoAlertaMin;
+    this.prazoAcaoMin = prazoAcaoMin;
+    this.acaoAutomatica = acaoAutomatica;
+  }
 }

@@ -7,29 +7,29 @@ import br.com.leitovivo.web.dto.response.LeitoResponse;
 
 public final class LeitoMapper {
 
-    private LeitoMapper() {
-    }
+  private LeitoMapper() {
+  }
 
-    public static LeitoResponse toResponse(Leito leito) {
-        return new LeitoResponse(
-                leito.getId(),
-                leito.getUnidade().getId(),
-                leito.getCodigo(),
-                leito.getTipo(),
-                leito.getStatus(),
-                leito.getVersao(),
-                leito.isLiberadoAutomaticamente(),
-                leito.getDataUltimaAtualizacaoStatus());
-    }
+  public static LeitoResponse toResponse(Leito leito) {
+    return new LeitoResponse(
+        leito.getId(),
+        leito.getUnidade().getId(),
+        leito.getCodigo(),
+        leito.getTipo(),
+        leito.getStatus(),
+        leito.getVersao(),
+        leito.isLiberadoAutomaticamente(),
+        leito.getDataUltimaAtualizacaoStatus());
+  }
 
-    public static HistoricoStatusResponse toHistoricoResponse(HistoricoStatusLeito historico) {
-        return new HistoricoStatusResponse(
-                historico.getId(),
-                historico.getStatusAnterior(),
-                historico.getStatusNovo(),
-                historico.getEvento(),
-                historico.getAutor(),
-                historico.getMotivo(),
-                historico.getDataHora());
-    }
+  public static HistoricoStatusResponse toHistoricoResponse(HistoricoStatusLeito historico) {
+    return new HistoricoStatusResponse(
+        historico.getId(),
+        historico.getStatusAnterior(),
+        historico.getStatusNovo(),
+        historico.getEvento(),
+        historico.getAutor(),
+        historico.getMotivo(),
+        historico.getDataHora());
+  }
 }

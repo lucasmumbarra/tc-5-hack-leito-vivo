@@ -10,14 +10,11 @@ import java.util.UUID;
 
 
 @Tag(name = "SLA")
-
 public interface SlaControllerDoc {
 
-    
-    @Operation(summary = "Listar SLAs")
-    public List<SlaResponse> listar();
+  @Operation(summary = "Listar SLAs")
+  public List<SlaResponse> listar();
 
-    
-    @Operation(summary = "Atualizar prazos de SLA", description = "Efeito na próxima execução do job, sem reiniciar.")
-    public SlaResponse atualizar( UUID id,  AtualizarSlaRequest request);
+  @Operation(summary = "Atualizar prazos de SLA", description = "Efeito na próxima execução do job, sem reiniciar.")
+  public SlaResponse atualizar(UUID id, AtualizarSlaRequest request);
 }

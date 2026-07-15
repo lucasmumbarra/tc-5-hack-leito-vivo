@@ -22,85 +22,85 @@ import java.util.UUID;
 @Table(name = "historico_status_leito")
 public class HistoricoStatusLeito {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "leito_id", nullable = false)
-    private Leito leito;
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "leito_id", nullable = false)
+  private Leito leito;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status_anterior", length = 40)
-    private StatusLeito statusAnterior;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status_anterior", length = 40)
+  private StatusLeito statusAnterior;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status_novo", nullable = false, length = 40)
-    private StatusLeito statusNovo;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status_novo", nullable = false, length = 40)
+  private StatusLeito statusNovo;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 60)
-    private EventoLeito evento;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 60)
+  private EventoLeito evento;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private Autor autor;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private Autor autor;
 
-    @Column(length = 120)
-    private String motivo;
+  @Column(length = 120)
+  private String motivo;
 
-    @Column(name = "data_hora", nullable = false)
-    private Instant dataHora;
+  @Column(name = "data_hora", nullable = false)
+  private Instant dataHora;
 
-    protected HistoricoStatusLeito() {
-    }
+  protected HistoricoStatusLeito() {
+  }
 
-    public HistoricoStatusLeito(
-            Leito leito,
-            StatusLeito statusAnterior,
-            StatusLeito statusNovo,
-            EventoLeito evento,
-            Autor autor,
-            String motivo,
-            Instant dataHora) {
-        this.leito = leito;
-        this.statusAnterior = statusAnterior;
-        this.statusNovo = statusNovo;
-        this.evento = evento;
-        this.autor = autor;
-        this.motivo = motivo;
-        this.dataHora = dataHora;
-    }
+  public HistoricoStatusLeito(
+      Leito leito,
+      StatusLeito statusAnterior,
+      StatusLeito statusNovo,
+      EventoLeito evento,
+      Autor autor,
+      String motivo,
+      Instant dataHora) {
+    this.leito = leito;
+    this.statusAnterior = statusAnterior;
+    this.statusNovo = statusNovo;
+    this.evento = evento;
+    this.autor = autor;
+    this.motivo = motivo;
+    this.dataHora = dataHora;
+  }
 
-    public UUID getId() {
-        return id;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public Leito getLeito() {
-        return leito;
-    }
+  public Leito getLeito() {
+    return leito;
+  }
 
-    public StatusLeito getStatusAnterior() {
-        return statusAnterior;
-    }
+  public StatusLeito getStatusAnterior() {
+    return statusAnterior;
+  }
 
-    public StatusLeito getStatusNovo() {
-        return statusNovo;
-    }
+  public StatusLeito getStatusNovo() {
+    return statusNovo;
+  }
 
-    public EventoLeito getEvento() {
-        return evento;
-    }
+  public EventoLeito getEvento() {
+    return evento;
+  }
 
-    public Autor getAutor() {
-        return autor;
-    }
+  public Autor getAutor() {
+    return autor;
+  }
 
-    public String getMotivo() {
-        return motivo;
-    }
+  public String getMotivo() {
+    return motivo;
+  }
 
-    public Instant getDataHora() {
-        return dataHora;
-    }
+  public Instant getDataHora() {
+    return dataHora;
+  }
 }

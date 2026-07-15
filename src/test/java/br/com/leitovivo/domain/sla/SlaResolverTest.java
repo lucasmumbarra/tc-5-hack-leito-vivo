@@ -4,70 +4,70 @@ import br.com.leitovivo.domain.leito.enums.StatusLeito;
 import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
 import br.com.leitovivo.domain.sla.model.SlaAplicavel;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SlaResolverTest {
 
-    private static final UUID UNIDADE_X = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
-    private static final UUID ID_ESPECIFICO = UUID.fromString("11111111-1111-1111-1111-111111111111");
-    private static final UUID ID_DEFAULT = UUID.fromString("22222222-2222-2222-2222-222222222222");
-    private static final UUID ID_UNIDADE = UUID.fromString("33333333-3333-3333-3333-333333333333");
+  private static final UUID UNIDADE_X = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+  private static final UUID ID_ESPECIFICO = UUID.fromString("11111111-1111-1111-1111-111111111111");
+  private static final UUID ID_DEFAULT = UUID.fromString("22222222-2222-2222-2222-222222222222");
+  private static final UUID ID_UNIDADE = UUID.fromString("33333333-3333-3333-3333-333333333333");
 
-    @Test
-    void slaEspecificoPrevalece() {
-        SlaAplicavel especifico = regra(ID_ESPECIFICO, UNIDADE_X, TipoLeito.UTI, StatusLeito.OCUPADO, 100);
-        SlaAplicavel padrao = regra(ID_DEFAULT, null, null, StatusLeito.OCUPADO, 28800);
+  @Test
+  void slaEspecificoPrevalece() {
+    SlaAplicavel especifico = regra(ID_ESPECIFICO, UNIDADE_X, TipoLeito.UTI, StatusLeito.OCUPADO, 100);
+    SlaAplicavel padrao = regra(ID_DEFAULT, null, null, StatusLeito.OCUPADO, 28800);
 
-        Optional<SlaAplicavel> resultado = SlaResolver.resolver(
-                UNIDADE_X, TipoLeito.UTI, StatusLeito.OCUPADO, List.of(padrao, especifico));
+    Optional<SlaAplicavel> resultado = SlaResolver.resolver(
+        UNIDADE_X, TipoLeito.UTI, StatusLeito.OCUPADO, List.of(padrao, especifico));
 
-        assertTrue(resultado.isPresent());
-        assertEquals(ID_ESPECIFICO, resultado.get().id());
-        assertEquals(100, resultado.get().prazoAlertaMin());
-    }
+    assertTrue(resultado.isPresent());
+    assertEquals(ID_ESPECIFICO, resultado.get().id());
+    assertEquals(100, resultado.get().prazoAlertaMin());
+  }
 
-    @Test
-    void quedaParaODefault() {
-        SlaAplicavel padrao = regra(ID_DEFAULT, null, null, StatusLeito.OCUPADO, 28800);
+  @Test
+  void quedaParaODefault() {
+    SlaAplicavel padrao = regra(ID_DEFAULT, null, null, StatusLeito.OCUPADO, 28800);
 
-        Optional<SlaAplicavel> resultado = SlaResolver.resolver(
-                UNIDADE_X, TipoLeito.CLINICO, StatusLeito.OCUPADO, List.of(padrao));
+    Optional<SlaAplicavel> resultado = SlaResolver.resolver(
+        UNIDADE_X, TipoLeito.CLINICO, StatusLeito.OCUPADO, List.of(padrao));
 
-        assertTrue(resultado.isPresent());
-        assertEquals(ID_DEFAULT, resultado.get().id());
-    }
+    assertTrue(resultado.isPresent());
+    assertEquals(ID_DEFAULT, resultado.get().id());
+  }
 
-    @Test
-    void statusSemSlaConfiguradoRetornaEmpty() {
-        SlaAplicavel ocupado = regra(ID_DEFAULT, null, null, StatusLeito.OCUPADO, 28800);
+  @Test
+  void statusSemSlaConfiguradoRetornaEmpty() {
+    SlaAplicavel ocupado = regra(ID_DEFAULT, null, null, StatusLeito.OCUPADO, 28800);
 
-        Optional<SlaAplicavel> resultado = SlaResolver.resolver(
-                UNIDADE_X, TipoLeito.UTI, StatusLeito.LIVRE, List.of(ocupado));
+    Optional<SlaAplicavel> resultado = SlaResolver.resolver(
+        UNIDADE_X, TipoLeito.UTI, StatusLeito.LIVRE, List.of(ocupado));
 
-        assertTrue(resultado.isEmpty());
-    }
+    assertTrue(resultado.isEmpty());
+  }
 
-    @Test
-    void cascadeUnidadeSemTipoAntesDeTipoSemUnidade() {
-        SlaAplicavel porUnidade = regra(ID_UNIDADE, UNIDADE_X, null, StatusLeito.RESERVADO, 100);
-        SlaAplicavel porTipo = regra(ID_ESPECIFICO, null, TipoLeito.UTI, StatusLeito.RESERVADO, 200);
-        SlaAplicavel padrao = regra(ID_DEFAULT, null, null, StatusLeito.RESERVADO, 360);
+  @Test
+  void cascadeUnidadeSemTipoAntesDeTipoSemUnidade() {
+    SlaAplicavel porUnidade = regra(ID_UNIDADE, UNIDADE_X, null, StatusLeito.RESERVADO, 100);
+    SlaAplicavel porTipo = regra(ID_ESPECIFICO, null, TipoLeito.UTI, StatusLeito.RESERVADO, 200);
+    SlaAplicavel padrao = regra(ID_DEFAULT, null, null, StatusLeito.RESERVADO, 360);
 
-        Optional<SlaAplicavel> resultado = SlaResolver.resolver(
-                UNIDADE_X, TipoLeito.UTI, StatusLeito.RESERVADO, List.of(padrao, porTipo, porUnidade));
+    Optional<SlaAplicavel> resultado = SlaResolver.resolver(
+        UNIDADE_X, TipoLeito.UTI, StatusLeito.RESERVADO, List.of(padrao, porTipo, porUnidade));
 
-        assertEquals(ID_UNIDADE, resultado.orElseThrow().id());
-    }
+    assertEquals(ID_UNIDADE, resultado.orElseThrow().id());
+  }
 
-    private static SlaAplicavel regra(
-            UUID id, UUID unidadeId, TipoLeito tipo, StatusLeito status, int prazoAlerta) {
-        return new SlaAplicavel(id, unidadeId, tipo, status, prazoAlerta, null, AcaoAutomatica.NENHUMA);
-    }
+  private static SlaAplicavel regra(
+      UUID id, UUID unidadeId, TipoLeito tipo, StatusLeito status, int prazoAlerta) {
+    return new SlaAplicavel(id, unidadeId, tipo, status, prazoAlerta, null, AcaoAutomatica.NENHUMA);
+  }
 }

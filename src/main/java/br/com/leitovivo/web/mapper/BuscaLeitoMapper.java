@@ -5,16 +5,16 @@ import br.com.leitovivo.web.dto.response.LeitoCompativelResponse;
 
 public final class BuscaLeitoMapper {
 
-    private BuscaLeitoMapper() {
-    }
+  private BuscaLeitoMapper() {
+  }
 
-    public static LeitoCompativelResponse toResponse(Leito leito) {
-        return new LeitoCompativelResponse(
-                leito.getId(),
-                leito.getUnidade().getId(),
-                leito.getUnidade().getNome(),
-                leito.getUnidade().getRegiao(),
-                leito.getCodigo(),
-                leito.getTipo());
-    }
+  public static LeitoCompativelResponse toResponse(Leito leito) {
+    return new LeitoCompativelResponse(
+        leito.getId(),
+        leito.getUnidade().getId(),
+        leito.getUnidade().getNome(),
+        leito.getUnidade().getRegiao(),
+        leito.getCodigo(),
+        leito.getTipo());
+  }
 }

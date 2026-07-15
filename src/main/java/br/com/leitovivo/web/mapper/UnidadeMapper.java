@@ -5,15 +5,15 @@ import br.com.leitovivo.web.dto.response.UnidadeResponse;
 
 public final class UnidadeMapper {
 
-    private UnidadeMapper() {
-    }
+  private UnidadeMapper() {
+  }
 
-    public static UnidadeResponse toResponse(Unidade unidade) {
-        return new UnidadeResponse(
-                unidade.getId(),
-                unidade.getNome(),
-                unidade.getMunicipio(),
-                unidade.getRegiao(),
-                unidade.getTipo());
-    }
+  public static UnidadeResponse toResponse(Unidade unidade) {
+    return new UnidadeResponse(
+        unidade.getId(),
+        unidade.getNome(),
+        unidade.getMunicipio(),
+        unidade.getRegiao(),
+        unidade.getTipo());
+  }
 }

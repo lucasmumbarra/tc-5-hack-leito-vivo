@@ -3,10 +3,10 @@ package br.com.leitovivo.domain.sla;
 import br.com.leitovivo.domain.leito.enums.StatusLeito;
 import br.com.leitovivo.domain.sla.enums.AcaoAutomatica;
 import br.com.leitovivo.domain.sla.enums.DecisaoSla;
-import org.junit.jupiter.api.Test;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

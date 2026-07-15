@@ -2,6 +2,7 @@ package br.com.leitovivo.web.handler;
 
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.exception.RecursoNaoEncontradoException;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -19,42 +20,42 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 class GlobalExceptionHandlerTest {
 
-    private MockMvc mockMvc;
+  private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new ProbeController())
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
+  @BeforeEach
+  void setUp() {
+    mockMvc = MockMvcBuilders.standaloneSetup(new ProbeController())
+        .setControllerAdvice(new GlobalExceptionHandler())
+        .build();
+  }
+
+  @Test
+  void payloadInvalidoRetorna422() throws Exception {
+    mockMvc.perform(post("/__probe__/invalid")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{}"))
+        .andExpect(status().isUnprocessableEntity())
+        .andExpect(jsonPath("$.detail").exists());
+  }
+
+  @Test
+  void recursoNaoEncontradoRetorna404() throws Exception {
+    mockMvc.perform(get("/__probe__/missing"))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.detail").exists());
+  }
+
+  @RestController
+  static class ProbeController {
+
+    @PostMapping("/__probe__/invalid")
+    void invalid(@RequestBody(required = false) String body) {
+      throw new PayloadInvalidoException("nome é obrigatório");
     }
 
-    @Test
-    void payloadInvalidoRetorna422() throws Exception {
-        mockMvc.perform(post("/__probe__/invalid")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{}"))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.detail").exists());
+    @GetMapping("/__probe__/missing")
+    void missing() {
+      throw new RecursoNaoEncontradoException("Unidade não encontrada");
     }
-
-    @Test
-    void recursoNaoEncontradoRetorna404() throws Exception {
-        mockMvc.perform(get("/__probe__/missing"))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.detail").exists());
-    }
-
-    @RestController
-    static class ProbeController {
-
-        @PostMapping("/__probe__/invalid")
-        void invalid(@RequestBody(required = false) String body) {
-            throw new PayloadInvalidoException("nome é obrigatório");
-        }
-
-        @GetMapping("/__probe__/missing")
-        void missing() {
-            throw new RecursoNaoEncontradoException("Unidade não encontrada");
-        }
-    }
+  }
 }

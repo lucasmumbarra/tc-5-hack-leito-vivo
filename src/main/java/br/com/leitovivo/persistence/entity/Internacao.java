@@ -21,64 +21,64 @@ import java.util.UUID;
 @Table(name = "internacao")
 public class Internacao {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "leito_id", nullable = false)
-    private Leito leito;
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "leito_id", nullable = false)
+  private Leito leito;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "paciente_id", nullable = false)
-    private Paciente paciente;
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "paciente_id", nullable = false)
+  private Paciente paciente;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private StatusInternacao status;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false, length = 20)
+  private StatusInternacao status;
 
-    @Column(name = "data_entrada", nullable = false)
-    private Instant dataEntrada;
+  @Column(name = "data_entrada", nullable = false)
+  private Instant dataEntrada;
 
-    @Column(name = "data_alta")
-    private Instant dataAlta;
+  @Column(name = "data_alta")
+  private Instant dataAlta;
 
-    protected Internacao() {
-    }
+  protected Internacao() {
+  }
 
-    public Internacao(Leito leito, Paciente paciente, Instant dataEntrada) {
-        this.leito = leito;
-        this.paciente = paciente;
-        this.status = StatusInternacao.ATIVA;
-        this.dataEntrada = dataEntrada;
-    }
+  public Internacao(Leito leito, Paciente paciente, Instant dataEntrada) {
+    this.leito = leito;
+    this.paciente = paciente;
+    this.status = StatusInternacao.ATIVA;
+    this.dataEntrada = dataEntrada;
+  }
 
-    public void encerrar(Instant dataAlta) {
-        this.status = StatusInternacao.ENCERRADA;
-        this.dataAlta = dataAlta;
-    }
+  public void encerrar(Instant dataAlta) {
+    this.status = StatusInternacao.ENCERRADA;
+    this.dataAlta = dataAlta;
+  }
 
-    public UUID getId() {
-        return id;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public Leito getLeito() {
-        return leito;
-    }
+  public Leito getLeito() {
+    return leito;
+  }
 
-    public Paciente getPaciente() {
-        return paciente;
-    }
+  public Paciente getPaciente() {
+    return paciente;
+  }
 
-    public StatusInternacao getStatus() {
-        return status;
-    }
+  public StatusInternacao getStatus() {
+    return status;
+  }
 
-    public Instant getDataEntrada() {
-        return dataEntrada;
-    }
+  public Instant getDataEntrada() {
+    return dataEntrada;
+  }
 
-    public Instant getDataAlta() {
-        return dataAlta;
-    }
+  public Instant getDataAlta() {
+    return dataAlta;
+  }
 }

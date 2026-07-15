@@ -4,20 +4,20 @@ import br.com.leitovivo.domain.leito.enums.StatusLeito;
 import br.com.leitovivo.domain.leito.enums.TipoLeito;
 import br.com.leitovivo.exception.PayloadInvalidoException;
 import br.com.leitovivo.persistence.entity.Leito;
-import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
 import br.com.leitovivo.persistence.entity.Unidade;
+import br.com.leitovivo.persistence.repository.LeitoBuscaIndicadorRepository;
 import br.com.leitovivo.web.dto.response.LeitoCompativelResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,64 +28,64 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class BuscaLeitoServiceTest {
 
-    @Mock
-    private LeitoBuscaIndicadorRepository repository;
+  @Mock
+  private LeitoBuscaIndicadorRepository repository;
 
-    private BuscaLeitoService service;
+  private BuscaLeitoService service;
 
-    @BeforeEach
-    void setUp() {
-        service = new BuscaLeitoService(repository);
-    }
+  @BeforeEach
+  void setUp() {
+    service = new BuscaLeitoService(repository);
+  }
 
-    @Test
-    void utiNaoRetornaEnfermaria() throws Exception {
-        Unidade u = unidade("Sudeste");
-        Leito uti = leito(u, "UTI-1", TipoLeito.UTI, StatusLeito.LIVRE);
-        when(repository.findByRegiaoAndStatusAndTipoIn(
-                eq("Sudeste"), eq(StatusLeito.LIVRE), eq(Set.of(TipoLeito.UTI))))
-                .thenReturn(List.of(uti));
+  @Test
+  void utiNaoRetornaEnfermaria() throws Exception {
+    Unidade u = unidade("Sudeste");
+    Leito uti = leito(u, "UTI-1", TipoLeito.UTI, StatusLeito.LIVRE);
+    when(repository.findByRegiaoAndStatusAndTipoIn(
+        eq("Sudeste"), eq(StatusLeito.LIVRE), eq(Set.of(TipoLeito.UTI))))
+        .thenReturn(List.of(uti));
 
-        List<LeitoCompativelResponse> result = service.buscarCompativeis(TipoLeito.UTI, "Sudeste");
+    List<LeitoCompativelResponse> result = service.buscarCompativeis(TipoLeito.UTI, "Sudeste");
 
-        assertEquals(1, result.size());
-        assertEquals(TipoLeito.UTI, result.getFirst().tipo());
-    }
+    assertEquals(1, result.size());
+    assertEquals(TipoLeito.UTI, result.getFirst().tipo());
+  }
 
-    @Test
-    void listaVaziaQuandoNenhumCompativel() {
-        when(repository.findByRegiaoAndStatusAndTipoIn(
-                eq("Norte"), eq(StatusLeito.LIVRE), eq(Set.of(TipoLeito.UTI))))
-                .thenReturn(List.of());
+  @Test
+  void listaVaziaQuandoNenhumCompativel() {
+    when(repository.findByRegiaoAndStatusAndTipoIn(
+        eq("Norte"), eq(StatusLeito.LIVRE), eq(Set.of(TipoLeito.UTI))))
+        .thenReturn(List.of());
 
-        assertTrue(service.buscarCompativeis(TipoLeito.UTI, "Norte").isEmpty());
-    }
+    assertTrue(service.buscarCompativeis(TipoLeito.UTI, "Norte").isEmpty());
+  }
 
-    @Test
-    void necessidadeAusente422() {
-        assertThrows(PayloadInvalidoException.class, () -> service.buscarCompativeis(null, "Sudeste"));
-    }
+  @Test
+  void necessidadeAusente422() {
+    assertThrows(PayloadInvalidoException.class, () -> service.buscarCompativeis(null, "Sudeste"));
+  }
 
-    @Test
-    void regiaoAusente422() {
-        assertThrows(PayloadInvalidoException.class, () -> service.buscarCompativeis(TipoLeito.UTI, "  "));
-    }
+  @Test
+  void regiaoAusente422() {
+    assertThrows(PayloadInvalidoException.class, () -> service.buscarCompativeis(TipoLeito.UTI, "  "));
+  }
 
-    private static Unidade unidade(String regiao) throws Exception {
-        Unidade u = new Unidade("H", "Cidade", regiao, "Geral");
-        setField(u, "id", UUID.randomUUID());
-        return u;
-    }
+  private static Unidade unidade(String regiao) throws Exception {
+    Unidade u = new Unidade("H", "Cidade", regiao, "Geral");
+    setField(u, "id", UUID.randomUUID());
+    return u;
+  }
 
-    private static Leito leito(Unidade u, String codigo, TipoLeito tipo, StatusLeito status) throws Exception {
-        Leito l = new Leito(u, codigo, tipo, status, false, Instant.parse("2026-07-13T12:00:00Z"));
-        setField(l, "id", UUID.randomUUID());
-        return l;
-    }
+  private static Leito leito(Unidade u, String codigo, TipoLeito tipo, StatusLeito status) throws Exception {
+    Leito l = new Leito(u, codigo, tipo, status, false, Instant.parse("2026-07-13T12:00:00Z"));
+    setField(l, "id", UUID.randomUUID());
+    return l;
+  }
 
-    private static void setField(Object target, String name, Object value) throws Exception {
-        Field f = target.getClass().getDeclaredField(name);
-        f.setAccessible(true);
-        f.set(target, value);
-    }
+  private static void setField(Object target, String name, Object value) throws Exception {
+    Field f = target.getClass().getDeclaredField(name);
+    f.setAccessible(true);
+    f.set(target, value);
+  }
 }

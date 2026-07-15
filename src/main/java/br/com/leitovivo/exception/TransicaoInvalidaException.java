@@ -5,20 +5,20 @@ import br.com.leitovivo.domain.leito.enums.StatusLeito;
 
 public class TransicaoInvalidaException extends RuntimeException {
 
-    private final StatusLeito statusAtual;
-    private final EventoLeito evento;
+  private final StatusLeito statusAtual;
+  private final EventoLeito evento;
 
-    public TransicaoInvalidaException(StatusLeito statusAtual, EventoLeito evento) {
-        super("Transição inválida: status=" + statusAtual + ", evento=" + evento);
-        this.statusAtual = statusAtual;
-        this.evento = evento;
-    }
+  public TransicaoInvalidaException(StatusLeito statusAtual, EventoLeito evento) {
+    super("Transição inválida: status=" + statusAtual + ", evento=" + evento);
+    this.statusAtual = statusAtual;
+    this.evento = evento;
+  }
 
-    public StatusLeito getStatusAtual() {
-        return statusAtual;
-    }
+  public StatusLeito getStatusAtual() {
+    return statusAtual;
+  }
 
-    public EventoLeito getEvento() {
-        return evento;
-    }
+  public EventoLeito getEvento() {
+    return evento;
+  }
 }

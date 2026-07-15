@@ -7,12 +7,12 @@ import java.time.Instant;
 import java.util.UUID;
 
 public record LeitoResponse(
-        UUID id,
-        UUID unidadeId,
-        String codigo,
-        TipoLeito tipo,
-        StatusLeito status,
-        Long versao,
-        boolean liberadoAutomaticamente,
-        Instant dataUltimaAtualizacaoStatus) {
+    UUID id,
+    UUID unidadeId,
+    String codigo,
+    TipoLeito tipo,
+    StatusLeito status,
+    Long versao,
+    boolean liberadoAutomaticamente,
+    Instant dataUltimaAtualizacaoStatus) {
 }
